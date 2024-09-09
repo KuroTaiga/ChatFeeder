@@ -50,9 +50,10 @@ def generate_joint_rules(joint_positions):
     # if joint_positions['left_foot'][1] > joint_positions['left_knee'][1]:
     #     rules['leg_extension'] = 'extended'
     # entened leg should be close to straight, hip, knee, foot angle should be close to 180
-    if calculate_angle(joint_positions['left_hip'],joint_position['left_knee'],):
-
-
+    if (10>abs(180-calculate_angle(joint_positions['left_hip'],joint_position['left_knee'],joint_position['left_foot']))):
+        rules['left_leg_extension'] = 'extended'
+    if (10>abs(180-calculate_angle(joint_positions['right_hip'],joint_position['right_knee'],joint_position['right_foot']))):
+        rules['right_leg_extension'] = 'extended'
     # Arm positioning for curls, presses, or lateral raises
     # TODO: press doesn't follow this 'extended' rule
     if abs(joint_positions['left_wrist'][0] - joint_positions['right_wrist'][0]) > 50:
