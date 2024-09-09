@@ -57,7 +57,7 @@ for blend_file in blend_files:
             new_image.paste(img, (x_offset, 0))
             x_offset += img.width
         
-        final_image_path = os.path.join(output_folder_clean, f"{os.path.splitext(blend_file)[0]}_concatenated.png")
+        final_image_path = os.path.join(output_folder_clean, f"{os.path.splitext(blend_file)[0]}.png")
         new_image.save(final_image_path)
 
 print("All images have been rendered and concatenated successfully!")
