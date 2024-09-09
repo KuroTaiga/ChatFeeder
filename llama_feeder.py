@@ -36,6 +36,11 @@ test_run_folder_path = "./test_run"
 Xiang_prompt = "Please provide a single-paragraph summary of the sequence of poses, integrating the key actions and body positions into a fluid, continuous description. Avoid breaking the description into separate positions, and focus on capturing the seamless flow of movement and the overall effect on the body. For reference, here are a few examples of the style and structure expected: 'Stand behind a bench, with the chest leaning over the edge of the bench. With one arm resting on the bench, hold the kettlebell, bending the arm at the elbow. Lower the arm using the bench as a guide, keeping the forearm straight.' 'The user stands, both hands holding a kettlebell, moving it toward the face, then returning it to the wrist.' 'Upper arms stable, curl the weights forward until the barbell reaches shoulder level. Lower the weight back to the starting position.' 'The person stands upright with legs together, arms extended above the head, palms facing inward. The head follows the line of the arms, with eyes gazing upward.' Ensure the summary captures the entire sequence as one continuous motion rather than separate steps."
 system_prompt = "You are to describe the activity based one the image provided. The image is in base64 encoded format."
 llama_prompt = "Can you take image as input?"
+
+#modified the prompt here
+
+
+
 # 1. Convert image to bytes (for API or model input)
 def load_image_as_bytes(image_path):
     with open(image_path, 'rb') as img_file:
@@ -158,5 +163,6 @@ def process_images_from_folder(folder_path, prompt, excel_file="responses.xlsx")
     save_to_excel(openai_response_dict, llama_response_dict,excel_file = excel_file)
 
 # Example usage
-process_images_from_folder(folder_path, prompt = Xiang_prompt)
-# process_images_from_folder(folder_path=test_run_folder_path, prompt=Xiang_prompt, excel_file="testrun.xlsx")
+#process_images_from_folder(folder_path, prompt = Xiang_prompt)
+process_images_from_folder(folder_path=test_run_folder_path, prompt=Xiang_prompt, excel_file="testrun.xlsx")
+print("All Done")
