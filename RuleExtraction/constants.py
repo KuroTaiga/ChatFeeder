@@ -29,17 +29,52 @@ EXERCISE_KEYS = [
         'exercise_specific'
     ]
 # Threshold constants for position detection (e.g., distances in pixels or units used)
-CLOSE = 10          # Threshold to determine if two points are 'close' to each other
-SPREAD = 50         # Threshold to determine if arms are 'spread' apart
+CLOSE = 10.0          # Threshold to determine if two points are 'close' to each other
+SPREAD = 50.0         # Threshold to determine if arms are 'spread' apart
 
 # Constants for angle thresholds (in degrees)
-STRAIGHT = 8                        # Degrees; threshold to consider a limb 'straight'
-HIP_HINGE_ANGLE_THRESHOLD = 30      # Degrees; threshold for detecting 'hip_hinge' posture
+STRAIGHT = 8.0                        # Degrees; threshold to consider a limb 'straight'
+HIP_HINGE_ANGLE_THRESHOLD = 30.0      # Degrees; threshold for detecting 'hip_hinge' posture
 
 # Constants for posture detection (distance thresholds)
-STANDING = 20                       # Vertical distance threshold for 'standing' posture
-UPRIGHT = 15                        # Vertical distance threshold for 'upright' posture
-BENT = 40                           # Vertical distance threshold for 'bent' posture
+STANDING = 20.0                       # Vertical distance threshold for 'standing' posture
+UPRIGHT = 15.0                        # Vertical distance threshold for 'upright' posture
+BENT = 40.0                           # Vertical distance threshold for 'bent' posture
 
 # Constant for core engagement detection (distance threshold)
-CORE_ENGAGEMENT_THRESHOLD = 50      # Threshold for detecting 'core_engaged' posture
+CORE_ENGAGEMENT_THRESHOLD = 50.0      # Threshold for detecting 'core_engaged' posture
+
+# Thresholds for Kettlebell Goblet Squat
+SHOULDER_WIDTH_THRESHOLD = 50.0               # Adjust based on your coordinate system
+KETTLEBELL_DISTANCE_THRESHOLD = 20.0          # Threshold for hands close to chest
+# Thresholds for Side Lunges
+WIDE_STANCE_THRESHOLD = 80.0                 # Adjust based on your coordinate system
+#KNEE_BEND_ANGLE_THRESHOLD = 130            # Degrees; angle at knee for bent position
+#ARM_POSITION_THRESHOLD = 20                # Threshold for hands at chest level
+#UPRIGHT_TORSO_ANGLE_THRESHOLD = 15         # Degrees; angle for upright torso
+
+# Thresholds for Single Arm Arnold Press
+#SHOULDER_WIDTH_THRESHOLD = 50                 # Adjust based on your coordinate system
+#ARM_BENT_ANGLE_THRESHOLD = 90                 # Degrees; angle at elbow for bent position
+ARM_EXTENSION_ANGLE_THRESHOLD = 160           # Degrees; angle at elbow for extended arm
+#KETTLEBELL_CHEST_DISTANCE_THRESHOLD = 20      # Distance threshold for kettlebell close to chest
+ELBOW_OUT_ANGLE_THRESHOLD = 10                # Threshold for elbow pointing outward
+#UPRIGHT_TORSO_ANGLE_THRESHOLD = 10            # Degrees; angle for upright torso
+ELBOW_FRONT_THRESHOLD = 15                    # Threshold for elbow in front of torso
+# Simulate getting joint positions from a video feed
+def get_joint_positions_from_video() -> dict:
+    joint_positions = {
+        'left_shoulder': (80.0, 200.0),
+        'right_shoulder': (120.0, 200.0),
+        'left_elbow': (70.0, 250.0),
+        'right_elbow': (130.0, 250.0),
+        'left_wrist': (60.0, 300.0),
+        'right_wrist': (140.0, 300.0),
+        'left_hip': (90.0, 270.0),
+        'right_hip': (110.0, 270.0),
+        'left_knee': (85.0, 350.0),
+        'right_knee': (115.0, 350.0),
+        'left_ankle': (80.0, 400.0),
+        'right_ankle': (120.0, 400.0)
+    }
+    return joint_positions

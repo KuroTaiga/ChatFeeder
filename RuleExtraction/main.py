@@ -1,26 +1,8 @@
 # main.py
 
-from constants import JOINT_KEYS
+from constants import JOINT_KEYS, get_joint_positions_from_video
 from rules_generation import generate_joint_rules
 from exercise_parser import parse_exercise_description
-
-# Simulate getting joint positions from a video feed
-def get_joint_positions_from_video() -> dict:
-    joint_positions = {
-        'left_shoulder': (80, 200),
-        'right_shoulder': (120, 200),
-        'left_elbow': (70, 250),
-        'right_elbow': (130, 250),
-        'left_wrist': (60, 300),
-        'right_wrist': (140, 300),
-        'left_hip': (90, 270),
-        'right_hip': (110, 270),
-        'left_knee': (85, 350),
-        'right_knee': (115, 350),
-        'left_ankle': (80, 400),
-        'right_ankle': (120, 400)
-    }
-    return joint_positions
 
 def compare_joint_positions(
     actual_rules: dict,

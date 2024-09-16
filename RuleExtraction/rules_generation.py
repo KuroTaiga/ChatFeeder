@@ -20,8 +20,11 @@ def generate_joint_rules(joint_positions:dict)->dict:
     for rule_dict in all_rules:
         for key, value in rule_dict.items():
             if key in rules:
-                rules[key].extend(value)
+                if isinstance(value, list):
+                    rules[key].extend(value)
+                else:
+                    rules[key].append(value)
             else:
-                rules[key] = value
+                rules[key] = value if isinstance(value, list) else [value]
 
     return rules
