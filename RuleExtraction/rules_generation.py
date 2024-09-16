@@ -4,10 +4,24 @@ from exercise import generate_exercise_rules
 from arms import generate_arm_rules
 from legs import generate_leg_rules
 
-def generate_joint_rules(joint_positions):
+def generate_joint_rules(joint_positions:dict)->dict:
     rules = {}
-    rules.update(determine_posture(joint_positions))
-    rules.update(generate_arm_rules(joint_positions))
-    rules.update(generate_leg_rules(joint_positions))
-    rules.update(generate_exercise_rules(joint_positions))
+
+    # Get rules from each module
+    posture_rules = determine_posture(joint_positions)
+    arm_rules = generate_arm_rules(joint_positions)
+    leg_rules = generate_leg_rules(joint_positions)
+    exercise_rules = generate_exercise_rules(joint_positions)
+
+    # List of all rule dictionaries
+    all_rules = [posture_rules, arm_rules, leg_rules, exercise_rules]
+
+    # Merge the dictionaries
+    for rule_dict in all_rules:
+        for key, value in rule_dict.items():
+            if key in rules:
+                rules[key].extend(value)
+            else:
+                rules[key] = value
+
     return rules

@@ -1,10 +1,23 @@
 # Rules genereation for specific excercises
+from constants import EXERCISE_KEYS, LYING_FLAT_THRESHOLD, ARM_RAISED_THRESHOLD
 
+def generate_exercise_rules(joint_positions:dict)->dict:
+    """
+    Generates rules specific to certain exercises based on joint positions.
 
-def generate_exercise_rules(joint_positions):
-    rules = {}
+    Args:
+        joint_positions (dict): A dictionary containing the coordinates of various joints.
+
+    Returns:
+        dict: A dictionary containing lists of strings representing detected exercise-specific rules.
+    """
+    # Initialize the rules dictionary with empty lists
+    exercise_rules = {key: [] for key in EXERCISE_KEYS}
+    return exercise_rules
     # Specific exercise rules for 30 different movements
+    #
 
+    
     # Abdominals Stretch
     # if abs(joint_positions['left_hip'][1] - joint_positions['left_ankle'][1]) < 50 and abs(joint_positions['left_shoulder'][1] - joint_positions['back'][1]) < 20:
     #     rules['posture'] = 'lying_flat'
@@ -114,4 +127,3 @@ def generate_exercise_rules(joint_positions):
     # # Windmill
     # if joint_positions['right_hand'][1] < joint_positions['right_shoulder'][1] and abs(joint_positions['left_foot'][0] - joint_positions['right_foot'][0]) > 50:
     #     rules['exercise'] = 'windmill_pose'
-    return rules

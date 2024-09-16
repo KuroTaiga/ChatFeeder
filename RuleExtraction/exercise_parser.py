@@ -1,82 +1,109 @@
 # exercise_parser.py
 
-def parse_exercise_description(description):
-    rules = {}
-    # Parsing posture
-    if 'standing' in description:
-        rules['posture'] = 'standing'
-    if 'lying flat' in description or 'lying face down' in description:
-        rules['posture'] = 'lying'
-    if 'upright' in description:
-        rules['posture'] = 'upright'
-    if 'seated' in description:
-        rules['posture'] = 'seated'
-    if 'hinge at the hips' in description:
-        rules['posture'] = 'hip_hinge'
+import re
+from constants import RULE_KEYS
 
-    # Parsing leg positioning and actions
-    if 'shoulder-width apart' in description:
-        rules['legs'] = 'shoulder_width_apart'
-    if 'squat' in description or 'lunge' in description or 'curtsy' in description:
-        rules['legs'] = 'bent'
-    if 'staggered' in description or 'split squat' in description:
-        rules['legs'] = 'staggered'
-    if 'leg extended' in description or 'kickback' in description:
-        rules['leg_extension'] = 'extended'
-    if 'calf raise' in description:
-        rules['leg_extension'] = 'calf_raise'
+def parse_exercise_description(description:str)->dict:
+    # Initialize rules with keys from RULE_KEYS, each key corresponds to an empty list
+    rules = {key: [] for key in RULE_KEYS}
 
-    # Parsing arm positioning and actions
-    if 'spread the arms' in description or 'arms spread' in description:
-        rules['arm_position'] = 'spread'
-    if 'extend the arms' in description or 'arms extended' in description:
-        rules['arm_position'] = 'extended'
-    if 'bend in the elbow' in description or 'arms bent' in description:
-        rules['arm_position'] = 'arms_bent'
-    if 'arms raised overhead' in description or 'arms overhead' in description:
-        rules['arm_position'] = 'arms_overhead'
-    if 'front raise' in description:
-        rules['arm_position'] = 'front_raise'
-    if 'lateral raise' in description:
-        rules['arm_position'] = 'lateral_raise'
-    if 'hammer curl' in description:
-        rules['arm_position'] = 'hammer_curl'
-    if 'skullcrusher' in description:
-        rules['arm_position'] = 'skullcrusher'
-    if 'press' in description:
-        rules['arm_position'] = 'press'
-    if 'wood chopper' in description:
-        rules['arm_position'] = 'wood_chopper'
-    
-    # Parsing complex actions like pushing, rotating, pulling
-    if 'push' in description or 'press' in description:
-        rules['action'] = 'push'
-    if 'pull' in description:
-        rules['action'] = 'pull'
-    if 'rotate' in description or 'rotation' in description:
-        rules['action'] = 'rotation'
-    if 'twist' in description:
-        rules['action'] = 'twist'
-    
+    description = description.lower()
+
+    # Posture parsing
+    posture_phrases = {
+        'standing': ['standing'],
+        'lying': ['lying flat', 'lying face down'],
+        'upright': ['upright'],
+        'seated': ['seated'],
+        'hip_hinge': ['hinge at the hips', 'hip hinge'],
+        'core_engaged': ['core engaged', 'engage the core']
+    }
+
+    for posture, phrases in posture_phrases.items():
+        for phrase in phrases:
+            if phrase in description:
+                rules['posture'].append(posture)
+                break  # Avoid adding duplicate postures
+
+    # Leg positioning and actions
+    leg_phrases = {
+        'shoulder_width_apart': ['shoulder-width apart', 'feet shoulder width apart'],
+        'bent': ['squat', 'lunge', 'curtsy'],
+        'staggered': ['staggered', 'split squat']
+    }
+
+    for leg_position, phrases in leg_phrases.items():
+        for phrase in phrases:
+            if phrase in description:
+                rules['legs'].append(leg_position)
+                break
+
+    # Leg extension parsing
+    leg_extension_phrases = {
+        'extended': ['leg extended', 'kickback'],
+        'calf_raise': ['calf raise']
+    }
+
+    for extension, phrases in leg_extension_phrases.items():
+        for phrase in phrases:
+            if phrase in description:
+                rules['leg_extension'].append(extension)
+                break
+
+    # Arm positioning and actions
+    arm_phrases = {
+        'spread': ['spread the arms', 'arms spread'],
+        'extended': ['extend the arms', 'arms extended', 'outstretched arms'],
+        'arms_bent': ['bend in the elbow', 'arms bent'],
+        'arms_overhead': ['arms raised overhead', 'arms overhead'],
+        'front_raise': ['front raise'],
+        'lateral_raise': ['lateral raise'],
+        'hammer_curl': ['hammer curl'],
+        'skullcrusher': ['skullcrusher'],
+        'press': ['press'],
+        'wood_chopper': ['wood chopper'],
+        'elbows_back': ['elbows back', 'driving the elbows back']
+    }
+
+    for arm_position, phrases in arm_phrases.items():
+        for phrase in phrases:
+            if phrase in description:
+                rules['arm_position'].append(arm_position)
+                break
+
+    # Parsing complex actions
+    action_phrases = {
+        'push': ['push', 'press'],
+        'pull': ['pull'],
+        'rotation': ['rotate', 'rotation', 'twist']
+    }
+
+    for action, phrases in action_phrases.items():
+        for phrase in phrases:
+            if phrase in description:
+                rules['action'].append(action)
+                break
+
     # Parsing combination of movements
-    if 'squat while pressing' in description or 'squat and press' in description:
-        rules['combined_movement'] = 'squat_press'
-    if 'lunge while raising' in description:
-        rules['combined_movement'] = 'lunge_raise'
-    if 'twist and press' in description or 'rotation and press' in description:
-        rules['combined_movement'] = 'rotation_press'
+    combined_phrases = {
+        'squat_press': ['squat while pressing', 'squat and press'],
+        'lunge_raise': ['lunge while raising'],
+        'rotation_press': ['twist and press', 'rotation and press']
+    }
 
-    # Parsing leg extension
-    if 'extend the leg' in description or 'leg extended' in description:
-        rules['leg_extension'] = 'extended'
+    for combined_movement, phrases in combined_phrases.items():
+        for phrase in phrases:
+            if phrase in description:
+                rules['combined_movement'].append(combined_movement)
+                break
 
-
-    #Item related exercise:
-    #kettlebell: only hold with hands:
+    # Item-related exercise (kettlebell)
     if 'kettlebell' in description:
         if 'close to the chest' in description:
-            rules['left_arm_position'] = 'close_to_chest'
-            rules['right_arm_position'] = 'close_to_chest'
+            rules['left_arm_position'].append('close_to_chest')
+            rules['right_arm_position'].append('close_to_chest')
 
+    # Clean up empty lists in rules
+    rules = {k: v for k, v in rules.items() if v}
 
     return rules
