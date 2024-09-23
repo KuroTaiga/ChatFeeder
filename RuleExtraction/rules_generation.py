@@ -11,10 +11,10 @@ def generate_joint_rules(joint_positions:dict)->dict:
     posture_rules = determine_posture(joint_positions)
     arm_rules = generate_arm_rules(joint_positions)
     leg_rules = generate_leg_rules(joint_positions)
-    exercise_rules = generate_exercise_rules(joint_positions)
+    #exercise_rules = generate_exercise_rules(joint_positions)
 
     # List of all rule dictionaries
-    all_rules = [posture_rules, arm_rules, leg_rules, exercise_rules]
+    all_rules = [posture_rules, arm_rules, leg_rules]
 
     # Merge the dictionaries
     for rule_dict in all_rules:
