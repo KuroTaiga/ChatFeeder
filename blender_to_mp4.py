@@ -24,7 +24,7 @@ for file_name in os.listdir(source_folder):
         bpy.ops.wm.open_mainfile(filepath=blend_file_path)
         
         # Set the rendering engine (optional)
-        bpy.context.scene.render.engine = 'CYCLES'  # Use 'CYCLES' if using Cycles
+        bpy.context.scene.render.engine = 'BLENDER_EEVEE_NEXT'  # Use 'CYCLES' if using Cycles
 
         
         # Set the output file format to MP4
