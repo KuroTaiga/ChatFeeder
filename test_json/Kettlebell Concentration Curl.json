@@ -1,10 +1,9 @@
 {
-    "activity": "Dumbbell Row",
+    "activity": "Seated Concentration Curl",
     "body_landmarks": {
         "left_foot": {
             "position": [
-                "shoulder-width apart",
-                "flat on ground"
+                "planted on ground"
             ],
             "motion": [
                 "stationary"
@@ -12,8 +11,7 @@
         },
         "right_foot": {
             "position": [
-                "shoulder-width apart",
-                "flat on ground"
+                "planted on ground"
             ],
             "motion": [
                 "stationary"
@@ -21,7 +19,7 @@
         },
         "left_hip": {
             "position": [
-                "slight hip hinge"
+                "sitting on bench"
             ],
             "motion": [
                 "stationary"
@@ -29,8 +27,7 @@
         },
         "right_hip": {
             "position": [
-                "slight hip hinge",
-                "flexed"
+                "sitting on bench"
             ],
             "motion": [
                 "stationary"
@@ -47,8 +44,7 @@
         },
         "left_hand": {
             "position": [
-                "holding dumbbell",
-                "arm extended downward"
+                "braced against left knee"
             ],
             "motion": [
                 "stationary"
@@ -56,17 +52,17 @@
         },
         "right_hand": {
             "position": [
-                "holding dumbbell",
-                "arm extended downward"
+                "holding kettlebell",
+                "beside right knee"
             ],
             "motion": [
-                "vertical upward (row)",
-                "vertical downward (release)"
+                "flexion",
+                "extension"
             ]
         },
         "left_elbow": {
             "position": [
-                "extended downward"
+                "braced on left knee"
             ],
             "motion": [
                 "stationary"
@@ -74,11 +70,12 @@
         },
         "right_elbow": {
             "position": [
-                "extended downward"
+                "flexed",
+                "unrestricted by knee"
             ],
             "motion": [
-                "flexion during row",
-                "extension during release"
+                "flexion",
+                "extension"
             ]
         },
         "left_shoulder": {
@@ -94,12 +91,13 @@
                 "neutral"
             ],
             "motion": [
-                "scapular retraction during row"
+                "stationary"
             ]
         },
         "left_knee": {
             "position": [
-                "slightly bent"
+                "bent",
+                "supports left elbow"
             ],
             "motion": [
                 "stationary"
@@ -107,7 +105,7 @@
         },
         "right_knee": {
             "position": [
-                "slightly bent"
+                "bent"
             ],
             "motion": [
                 "stationary"
@@ -115,9 +113,9 @@
         }
     },
     "equipment": {
-        "type": "dumbbells",
+        "type": "kettlebell",
         "position": [
-            "one in each hand"
+            "held in right hand"
         ]
     }
 }

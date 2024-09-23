@@ -1,10 +1,10 @@
 {
-    "activity": "Dumbbell Row",
+    "activity": "Dumbbell Bench Press",
     "body_landmarks": {
         "left_foot": {
             "position": [
-                "shoulder-width apart",
-                "flat on ground"
+                "flat on ground",
+                "shoulder-width apart"
             ],
             "motion": [
                 "stationary"
@@ -12,8 +12,8 @@
         },
         "right_foot": {
             "position": [
-                "shoulder-width apart",
-                "flat on ground"
+                "flat on ground",
+                "shoulder-width apart"
             ],
             "motion": [
                 "stationary"
@@ -21,7 +21,7 @@
         },
         "left_hip": {
             "position": [
-                "slight hip hinge"
+                "flexed and stable on the bench"
             ],
             "motion": [
                 "stationary"
@@ -29,8 +29,7 @@
         },
         "right_hip": {
             "position": [
-                "slight hip hinge",
-                "flexed"
+                "flexed and stable on the bench"
             ],
             "motion": [
                 "stationary"
@@ -38,7 +37,7 @@
         },
         "torso": {
             "position": [
-                "leaning forward",
+                "flat and stable on the bench",
                 "neutral spine"
             ],
             "motion": [
@@ -48,37 +47,39 @@
         "left_hand": {
             "position": [
                 "holding dumbbell",
-                "arm extended downward"
+                "above chest"
             ],
             "motion": [
-                "stationary"
+                "vertical upward",
+                "vertical downward"
             ]
         },
         "right_hand": {
             "position": [
                 "holding dumbbell",
-                "arm extended downward"
+                "above chest"
             ],
             "motion": [
-                "vertical upward (row)",
-                "vertical downward (release)"
+                "vertical upward",
+                "vertical downward"
             ]
         },
         "left_elbow": {
             "position": [
-                "extended downward"
+                "bent at approximately 90 degrees"
             ],
             "motion": [
-                "stationary"
+                "flexion",
+                "extension"
             ]
         },
         "right_elbow": {
             "position": [
-                "extended downward"
+                "bent at approximately 90 degrees"
             ],
             "motion": [
-                "flexion during row",
-                "extension during release"
+                "flexion",
+                "extension"
             ]
         },
         "left_shoulder": {
@@ -86,7 +87,8 @@
                 "neutral"
             ],
             "motion": [
-                "stationary"
+                "flexion",
+                "extension"
             ]
         },
         "right_shoulder": {
@@ -94,7 +96,8 @@
                 "neutral"
             ],
             "motion": [
-                "scapular retraction during row"
+                "flexion",
+                "extension"
             ]
         },
         "left_knee": {
@@ -117,7 +120,8 @@
     "equipment": {
         "type": "dumbbells",
         "position": [
-            "one in each hand"
+            "held by both hands",
+            "above chest"
         ]
     }
 }

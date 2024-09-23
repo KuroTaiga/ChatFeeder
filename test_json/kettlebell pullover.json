@@ -1,10 +1,10 @@
 {
-    "activity": "Dumbbell Press",
+    "activity": "Dumbbell Pullover",
     "body_landmarks": {
         "left_foot": {
             "position": [
-                "flat on ground",
-                "shoulder-width apart"
+                "feet flat on ground",
+                "hip-width apart"
             ],
             "motion": [
                 "stationary"
@@ -12,8 +12,24 @@
         },
         "right_foot": {
             "position": [
-                "flat on ground",
-                "shoulder-width apart"
+                "feet flat on ground",
+                "hip-width apart"
+            ],
+            "motion": [
+                "stationary"
+            ]
+        },
+        "left_knee": {
+            "position": [
+                "bent at 90 degrees"
+            ],
+            "motion": [
+                "stationary"
+            ]
+        },
+        "right_knee": {
+            "position": [
+                "bent at 90 degrees"
             ],
             "motion": [
                 "stationary"
@@ -21,8 +37,8 @@
         },
         "left_hip": {
             "position": [
-                "on bench",
-                "neutral"
+                "raised off bench",
+                "extended upward"
             ],
             "motion": [
                 "stationary"
@@ -30,8 +46,8 @@
         },
         "right_hip": {
             "position": [
-                "on bench",
-                "neutral"
+                "raised off bench",
+                "extended upward"
             ],
             "motion": [
                 "stationary"
@@ -39,7 +55,7 @@
         },
         "torso": {
             "position": [
-                "lying flat on bench",
+                "lying on bench",
                 "neutral spine"
             ],
             "motion": [
@@ -48,22 +64,24 @@
         },
         "left_hand": {
             "position": [
-                "holding dumbbell",
-                "arm extended above chest"
+                "holding dumbbell at chest",
+                "held overhead",
+                "arms extended backward"
             ],
             "motion": [
-                "flexion",
-                "extension"
+                "elevated overhead",
+                "lowering downward"
             ]
         },
         "right_hand": {
             "position": [
-                "holding dumbbell",
-                "arm extended above chest"
+                "holding dumbbell at chest",
+                "held overhead",
+                "arms extended backward"
             ],
             "motion": [
-                "flexion",
-                "extension"
+                "elevated overhead",
+                "lowering downward"
             ]
         },
         "left_elbow": {
@@ -86,44 +104,28 @@
         },
         "left_shoulder": {
             "position": [
-                "neutral",
-                "retracted at bottom"
+                "arms held overhead"
             ],
             "motion": [
-                "stationary"
+                "flexion",
+                "extension"
             ]
         },
         "right_shoulder": {
             "position": [
-                "neutral",
-                "retracted at bottom"
+                "arms held overhead"
             ],
             "motion": [
-                "stationary"
-            ]
-        },
-        "left_knee": {
-            "position": [
-                "slightly bent"
-            ],
-            "motion": [
-                "stationary"
-            ]
-        },
-        "right_knee": {
-            "position": [
-                "slightly bent"
-            ],
-            "motion": [
-                "stationary"
+                "flexion",
+                "extension"
             ]
         }
     },
     "equipment": {
-        "type": "dumbbells",
+        "type": "dumbbell",
         "position": [
-            "held in both hands",
-            "above chest"
+            "held by both hands",
+            "moved overhead"
         ]
     }
 }

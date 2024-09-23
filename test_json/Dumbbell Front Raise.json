@@ -1,5 +1,5 @@
 {
-    "activity": "Dumbbell Row",
+    "activity": "Dumbbell Front Raise",
     "body_landmarks": {
         "left_foot": {
             "position": [
@@ -21,7 +21,7 @@
         },
         "left_hip": {
             "position": [
-                "slight hip hinge"
+                "neutral"
             ],
             "motion": [
                 "stationary"
@@ -29,8 +29,7 @@
         },
         "right_hip": {
             "position": [
-                "slight hip hinge",
-                "flexed"
+                "neutral"
             ],
             "motion": [
                 "stationary"
@@ -38,7 +37,7 @@
         },
         "torso": {
             "position": [
-                "leaning forward",
+                "upright",
                 "neutral spine"
             ],
             "motion": [
@@ -48,53 +47,61 @@
         "left_hand": {
             "position": [
                 "holding dumbbell",
-                "arm extended downward"
+                "arm extended downward (start)",
+                "arm at shoulder height (end)"
             ],
             "motion": [
-                "stationary"
+                "vertical upward",
+                "vertical downward"
             ]
         },
         "right_hand": {
             "position": [
                 "holding dumbbell",
-                "arm extended downward"
+                "arm extended downward (start)",
+                "arm at shoulder height (end)"
             ],
             "motion": [
-                "vertical upward (row)",
-                "vertical downward (release)"
+                "vertical upward",
+                "vertical downward"
             ]
         },
         "left_elbow": {
             "position": [
-                "extended downward"
+                "slight bend"
             ],
             "motion": [
-                "stationary"
+                "slight flexion",
+                "extension"
             ]
         },
         "right_elbow": {
             "position": [
-                "extended downward"
+                "slight bend"
             ],
             "motion": [
-                "flexion during row",
-                "extension during release"
+                "slight flexion",
+                "extension"
             ]
         },
         "left_shoulder": {
             "position": [
-                "neutral"
+                "neutral (start)",
+                "flexed forward (end)"
             ],
             "motion": [
-                "stationary"
+                "flexion",
+                "extension"
             ]
         },
         "right_shoulder": {
             "position": [
-                "neutral"
+                "neutral (start)",
+                "flexed forward (end)"
             ],
             "motion": [
-                "scapular retraction during row"
+                "flexion",
+                "extension"
             ]
         },
         "left_knee": {
@@ -115,9 +122,10 @@
         }
     },
     "equipment": {
-        "type": "dumbbells",
+        "type": "dumbbell",
         "position": [
-            "one in each hand"
+            "held by both hands",
+            "in front of body"
         ]
     }
 }

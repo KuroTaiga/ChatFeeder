@@ -12,7 +12,7 @@ import replicate
 from llamaapi import LlamaAPI
 
 # Set your API keys
-openai.api_key = ""
+openai.api_key = "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"
 
 # Initialize the SDK
 #llama = LlamaAPI(llama_api_key)
@@ -100,7 +100,7 @@ JSON_example = {
 }
 JSON_string = json.dumps(JSON_example,indent=4)
 
-JSON_instruction  = "Provide a dictionary in JSON file that captures the movements and postions of each body landmark from the give picture. The picture contains 3 frames of the same workout activity. Use concise and precise language. Use keywords to describe motion and positions. Here's an example that contains the bodyland marks you should be using. If there's no equipment, use 'None'. The provided picture has the name of the activity"
+JSON_instruction  = "ONLY provide a dictionary in JSON file that captures the movements and postions of each body landmark from the give picture. Your response should only contain the JSON file with no other reponses The picture contains 3 frames of the same workout activity. Use concise and precise language. Use keywords to describe motion and positions. Here's an example that contains the bodyland marks you should be using. If there's no equipment, use 'None'. The provided picture has the name of the activity"
 JSON_prompt = JSON_instruction+JSON_string
 print(JSON_prompt)
 # 1. Convert image to bytes (for API or model input)
@@ -237,7 +237,7 @@ def process_images_from_folder(folder_path, prompt, excel_file="responses.xlsx",
 
     # Save all data to Excel
     save_to_excel(openai_response_dict, llama_response_dict,excel_file = excel_file)
-    save_jsons(openai_response_dict)
+    save_jsons(openai_response_dict,json_folder)
     return openai_response_dict
 
 # Example usage

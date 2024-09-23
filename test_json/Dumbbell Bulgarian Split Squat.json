@@ -1,19 +1,19 @@
 {
-    "activity": "Dumbbell Row",
+    "activity": "Bulgarian Split Squat",
     "body_landmarks": {
         "left_foot": {
             "position": [
-                "shoulder-width apart",
-                "flat on ground"
+                "flat on ground",
+                "slightly forward"
             ],
             "motion": [
-                "stationary"
+                "stationary",
+                "slightly flexed in final frame"
             ]
         },
         "right_foot": {
             "position": [
-                "shoulder-width apart",
-                "flat on ground"
+                "elevated on bench"
             ],
             "motion": [
                 "stationary"
@@ -21,16 +21,16 @@
         },
         "left_hip": {
             "position": [
-                "slight hip hinge"
+                "neutral in middle frame",
+                "slightly flexed in first and final frames"
             ],
             "motion": [
-                "stationary"
+                "hip flexion and extension"
             ]
         },
         "right_hip": {
             "position": [
-                "slight hip hinge",
-                "flexed"
+                "neutral"
             ],
             "motion": [
                 "stationary"
@@ -38,8 +38,8 @@
         },
         "torso": {
             "position": [
-                "leaning forward",
-                "neutral spine"
+                "upright",
+                "slight forward lean"
             ],
             "motion": [
                 "stationary"
@@ -48,7 +48,7 @@
         "left_hand": {
             "position": [
                 "holding dumbbell",
-                "arm extended downward"
+                "extended downward"
             ],
             "motion": [
                 "stationary"
@@ -57,11 +57,10 @@
         "right_hand": {
             "position": [
                 "holding dumbbell",
-                "arm extended downward"
+                "extended downward"
             ],
             "motion": [
-                "vertical upward (row)",
-                "vertical downward (release)"
+                "stationary"
             ]
         },
         "left_elbow": {
@@ -77,8 +76,7 @@
                 "extended downward"
             ],
             "motion": [
-                "flexion during row",
-                "extension during release"
+                "stationary"
             ]
         },
         "left_shoulder": {
@@ -94,20 +92,22 @@
                 "neutral"
             ],
             "motion": [
-                "scapular retraction during row"
+                "stationary"
             ]
         },
         "left_knee": {
             "position": [
-                "slightly bent"
+                "slightly bent in final frame",
+                "flexed in initial and final frames"
             ],
             "motion": [
-                "stationary"
+                "flexion",
+                "extension"
             ]
         },
         "right_knee": {
             "position": [
-                "slightly bent"
+                "bent on bench"
             ],
             "motion": [
                 "stationary"
@@ -117,7 +117,7 @@
     "equipment": {
         "type": "dumbbells",
         "position": [
-            "one in each hand"
+            "held in both hands down at sides"
         ]
     }
 }

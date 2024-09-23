@@ -1,5 +1,5 @@
 {
-    "activity": "Dumbbell Row",
+    "activity": "Kettlebell Deadlift",
     "body_landmarks": {
         "left_foot": {
             "position": [
@@ -21,19 +21,22 @@
         },
         "left_hip": {
             "position": [
-                "slight hip hinge"
+                "hip hinge",
+                "flexed forward"
             ],
             "motion": [
-                "stationary"
+                "extension",
+                "flexion"
             ]
         },
         "right_hip": {
             "position": [
-                "slight hip hinge",
-                "flexed"
+                "hip hinge",
+                "flexed forward"
             ],
             "motion": [
-                "stationary"
+                "extension",
+                "flexion"
             ]
         },
         "torso": {
@@ -47,7 +50,8 @@
         },
         "left_hand": {
             "position": [
-                "holding dumbbell",
+                "holding kettlebell",
+                "between legs",
                 "arm extended downward"
             ],
             "motion": [
@@ -56,12 +60,12 @@
         },
         "right_hand": {
             "position": [
-                "holding dumbbell",
+                "holding kettlebell",
+                "between legs",
                 "arm extended downward"
             ],
             "motion": [
-                "vertical upward (row)",
-                "vertical downward (release)"
+                "stationary"
             ]
         },
         "left_elbow": {
@@ -77,8 +81,7 @@
                 "extended downward"
             ],
             "motion": [
-                "flexion during row",
-                "extension during release"
+                "stationary"
             ]
         },
         "left_shoulder": {
@@ -94,7 +97,7 @@
                 "neutral"
             ],
             "motion": [
-                "scapular retraction during row"
+                "stationary"
             ]
         },
         "left_knee": {
@@ -102,7 +105,8 @@
                 "slightly bent"
             ],
             "motion": [
-                "stationary"
+                "extension",
+                "flexion"
             ]
         },
         "right_knee": {
@@ -110,14 +114,16 @@
                 "slightly bent"
             ],
             "motion": [
-                "stationary"
+                "extension",
+                "flexion"
             ]
         }
     },
     "equipment": {
-        "type": "dumbbells",
+        "type": "kettlebell",
         "position": [
-            "one in each hand"
+            "held by both hands",
+            "between legs"
         ]
     }
 }

@@ -1,10 +1,10 @@
 {
-    "activity": "Dumbbell Row",
+    "activity": "Chest Supported Dumbbell Row",
     "body_landmarks": {
         "left_foot": {
             "position": [
-                "shoulder-width apart",
-                "flat on ground"
+                "secured under pad",
+                "flat"
             ],
             "motion": [
                 "stationary"
@@ -12,8 +12,8 @@
         },
         "right_foot": {
             "position": [
-                "shoulder-width apart",
-                "flat on ground"
+                "secured under pad",
+                "flat"
             ],
             "motion": [
                 "stationary"
@@ -21,7 +21,8 @@
         },
         "left_hip": {
             "position": [
-                "slight hip hinge"
+                "face down",
+                "hip supported on bench"
             ],
             "motion": [
                 "stationary"
@@ -29,8 +30,8 @@
         },
         "right_hip": {
             "position": [
-                "slight hip hinge",
-                "flexed"
+                "face down",
+                "hip supported on bench"
             ],
             "motion": [
                 "stationary"
@@ -38,7 +39,7 @@
         },
         "torso": {
             "position": [
-                "leaning forward",
+                "chest supported on bench",
                 "neutral spine"
             ],
             "motion": [
@@ -48,20 +49,21 @@
         "left_hand": {
             "position": [
                 "holding dumbbell",
-                "arm extended downward"
+                "under bench height"
             ],
             "motion": [
-                "stationary"
+                "vertical upward",
+                "vertical downward"
             ]
         },
         "right_hand": {
             "position": [
                 "holding dumbbell",
-                "arm extended downward"
+                "under bench height"
             ],
             "motion": [
-                "vertical upward (row)",
-                "vertical downward (release)"
+                "vertical upward",
+                "vertical downward"
             ]
         },
         "left_elbow": {
@@ -69,7 +71,8 @@
                 "extended downward"
             ],
             "motion": [
-                "stationary"
+                "flexion",
+                "extension"
             ]
         },
         "right_elbow": {
@@ -77,29 +80,32 @@
                 "extended downward"
             ],
             "motion": [
-                "flexion during row",
-                "extension during release"
+                "flexion",
+                "extension"
             ]
         },
         "left_shoulder": {
             "position": [
-                "neutral"
+                "protracted"
             ],
             "motion": [
-                "stationary"
+                "scapular retraction",
+                "scapular protraction"
             ]
         },
         "right_shoulder": {
             "position": [
-                "neutral"
+                "protracted"
             ],
             "motion": [
-                "scapular retraction during row"
+                "scapular retraction",
+                "scapular protraction"
             ]
         },
         "left_knee": {
             "position": [
-                "slightly bent"
+                "hip-width apart",
+                "on bench"
             ],
             "motion": [
                 "stationary"
@@ -107,7 +113,8 @@
         },
         "right_knee": {
             "position": [
-                "slightly bent"
+                "hip-width apart",
+                "on bench"
             ],
             "motion": [
                 "stationary"
@@ -115,9 +122,10 @@
         }
     },
     "equipment": {
-        "type": "dumbbells",
+        "type": "dumbbell",
         "position": [
-            "one in each hand"
+            "held in both hands",
+            "pulled upward"
         ]
     }
 }

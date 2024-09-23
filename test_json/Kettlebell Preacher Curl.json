@@ -1,10 +1,10 @@
 {
-    "activity": "Dumbbell Row",
+    "activity": "Kettlebell Overhead Tricep Extension",
     "body_landmarks": {
         "left_foot": {
             "position": [
-                "shoulder-width apart",
-                "flat on ground"
+                "partially extended backward",
+                "on toes"
             ],
             "motion": [
                 "stationary"
@@ -12,8 +12,8 @@
         },
         "right_foot": {
             "position": [
-                "shoulder-width apart",
-                "flat on ground"
+                "flat on ground",
+                "stable"
             ],
             "motion": [
                 "stationary"
@@ -21,7 +21,8 @@
         },
         "left_hip": {
             "position": [
-                "slight hip hinge"
+                "slight lateral bend",
+                "stable"
             ],
             "motion": [
                 "stationary"
@@ -29,8 +30,8 @@
         },
         "right_hip": {
             "position": [
-                "slight hip hinge",
-                "flexed"
+                "slight lateral bend",
+                "stable"
             ],
             "motion": [
                 "stationary"
@@ -38,7 +39,7 @@
         },
         "torso": {
             "position": [
-                "leaning forward",
+                "leaning into the bench",
                 "neutral spine"
             ],
             "motion": [
@@ -47,8 +48,7 @@
         },
         "left_hand": {
             "position": [
-                "holding dumbbell",
-                "arm extended downward"
+                "gripping the bench"
             ],
             "motion": [
                 "stationary"
@@ -56,17 +56,17 @@
         },
         "right_hand": {
             "position": [
-                "holding dumbbell",
-                "arm extended downward"
+                "holding kettlebell",
+                "above head, arm bent"
             ],
             "motion": [
-                "vertical upward (row)",
-                "vertical downward (release)"
+                "extension",
+                "flexion"
             ]
         },
         "left_elbow": {
             "position": [
-                "extended downward"
+                "slightly bent"
             ],
             "motion": [
                 "stationary"
@@ -74,16 +74,17 @@
         },
         "right_elbow": {
             "position": [
-                "extended downward"
+                "flexed at head level"
             ],
             "motion": [
-                "flexion during row",
-                "extension during release"
+                "extension",
+                "flexion"
             ]
         },
         "left_shoulder": {
             "position": [
-                "neutral"
+                "retracted",
+                "supporting body on bench"
             ],
             "motion": [
                 "stationary"
@@ -94,7 +95,7 @@
                 "neutral"
             ],
             "motion": [
-                "scapular retraction during row"
+                "stationary"
             ]
         },
         "left_knee": {
@@ -107,7 +108,7 @@
         },
         "right_knee": {
             "position": [
-                "slightly bent"
+                "moderately bent"
             ],
             "motion": [
                 "stationary"
@@ -115,9 +116,10 @@
         }
     },
     "equipment": {
-        "type": "dumbbells",
+        "type": "kettlebell",
         "position": [
-            "one in each hand"
+            "held by right hand",
+            "above head, arm extended then flexed"
         ]
     }
 }

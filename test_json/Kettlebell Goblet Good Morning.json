@@ -1,5 +1,5 @@
 {
-    "activity": "Dumbbell Row",
+    "activity": "Kettlebell Goblet Squat",
     "body_landmarks": {
         "left_foot": {
             "position": [
@@ -21,25 +21,28 @@
         },
         "left_hip": {
             "position": [
-                "slight hip hinge"
+                "neutral",
+                "flexed forward"
             ],
             "motion": [
-                "stationary"
+                "hip hinge",
+                "extension"
             ]
         },
         "right_hip": {
             "position": [
-                "slight hip hinge",
-                "flexed"
+                "neutral",
+                "flexed forward"
             ],
             "motion": [
-                "stationary"
+                "hip hinge",
+                "extension"
             ]
         },
         "torso": {
             "position": [
-                "leaning forward",
-                "neutral spine"
+                "upright",
+                "leaning forward"
             ],
             "motion": [
                 "stationary"
@@ -47,8 +50,7 @@
         },
         "left_hand": {
             "position": [
-                "holding dumbbell",
-                "arm extended downward"
+                "holding kettlebell at chest level"
             ],
             "motion": [
                 "stationary"
@@ -56,17 +58,16 @@
         },
         "right_hand": {
             "position": [
-                "holding dumbbell",
-                "arm extended downward"
+                "holding kettlebell at chest level"
             ],
             "motion": [
-                "vertical upward (row)",
-                "vertical downward (release)"
+                "stationary"
             ]
         },
         "left_elbow": {
             "position": [
-                "extended downward"
+                "bent",
+                "framing chest"
             ],
             "motion": [
                 "stationary"
@@ -74,11 +75,11 @@
         },
         "right_elbow": {
             "position": [
-                "extended downward"
+                "bent",
+                "framing chest"
             ],
             "motion": [
-                "flexion during row",
-                "extension during release"
+                "stationary"
             ]
         },
         "left_shoulder": {
@@ -94,30 +95,35 @@
                 "neutral"
             ],
             "motion": [
-                "scapular retraction during row"
+                "stationary"
             ]
         },
         "left_knee": {
             "position": [
-                "slightly bent"
+                "flexed during hinge",
+                "aligned with toes"
             ],
             "motion": [
-                "stationary"
+                "slight bend",
+                "release"
             ]
         },
         "right_knee": {
             "position": [
-                "slightly bent"
+                "flexed during hinge",
+                "aligned with toes"
             ],
             "motion": [
-                "stationary"
+                "slight bend",
+                "release"
             ]
         }
     },
     "equipment": {
-        "type": "dumbbells",
+        "type": "kettlebell",
         "position": [
-            "one in each hand"
+            "held by both hands",
+            "at chest level"
         ]
     }
 }

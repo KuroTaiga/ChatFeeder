@@ -1,9 +1,9 @@
 {
-    "activity": "Dumbbell Row",
+    "activity": "Weighted Glute Bridge",
     "body_landmarks": {
         "left_foot": {
             "position": [
-                "shoulder-width apart",
+                "hip-width apart",
                 "flat on ground"
             ],
             "motion": [
@@ -12,7 +12,7 @@
         },
         "right_foot": {
             "position": [
-                "shoulder-width apart",
+                "hip-width apart",
                 "flat on ground"
             ],
             "motion": [
@@ -21,34 +21,36 @@
         },
         "left_hip": {
             "position": [
-                "slight hip hinge"
+                "hinge movement"
             ],
             "motion": [
-                "stationary"
+                "upward extension",
+                "downward flexion"
             ]
         },
         "right_hip": {
             "position": [
-                "slight hip hinge",
-                "flexed"
+                "hinge movement"
             ],
             "motion": [
-                "stationary"
+                "upward extension",
+                "downward flexion"
             ]
         },
         "torso": {
             "position": [
-                "leaning forward",
-                "neutral spine"
+                "neutral-spine",
+                "flat on mat"
             ],
             "motion": [
-                "stationary"
+                "lifting up",
+                "lowering down"
             ]
         },
         "left_hand": {
             "position": [
-                "holding dumbbell",
-                "arm extended downward"
+                "holding weight",
+                "resting on hips"
             ],
             "motion": [
                 "stationary"
@@ -56,17 +58,16 @@
         },
         "right_hand": {
             "position": [
-                "holding dumbbell",
-                "arm extended downward"
+                "holding weight",
+                "resting on hips"
             ],
             "motion": [
-                "vertical upward (row)",
-                "vertical downward (release)"
+                "stationary"
             ]
         },
         "left_elbow": {
             "position": [
-                "extended downward"
+                "flexed"
             ],
             "motion": [
                 "stationary"
@@ -74,16 +75,15 @@
         },
         "right_elbow": {
             "position": [
-                "extended downward"
+                "flexed"
             ],
             "motion": [
-                "flexion during row",
-                "extension during release"
+                "stationary"
             ]
         },
         "left_shoulder": {
             "position": [
-                "neutral"
+                "on mat"
             ],
             "motion": [
                 "stationary"
@@ -91,15 +91,15 @@
         },
         "right_shoulder": {
             "position": [
-                "neutral"
+                "on mat"
             ],
             "motion": [
-                "scapular retraction during row"
+                "stationary"
             ]
         },
         "left_knee": {
             "position": [
-                "slightly bent"
+                "bent at 90 degrees"
             ],
             "motion": [
                 "stationary"
@@ -107,7 +107,7 @@
         },
         "right_knee": {
             "position": [
-                "slightly bent"
+                "bent at 90 degrees"
             ],
             "motion": [
                 "stationary"
@@ -115,9 +115,10 @@
         }
     },
     "equipment": {
-        "type": "dumbbells",
+        "type": "weight plate",
         "position": [
-            "one in each hand"
+            "resting on hips",
+            "held by hands"
         ]
     }
 }

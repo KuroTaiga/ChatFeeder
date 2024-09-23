@@ -1,5 +1,5 @@
 {
-    "activity": "Dumbbell Row",
+    "activity": "Goblet Squat",
     "body_landmarks": {
         "left_foot": {
             "position": [
@@ -21,25 +21,25 @@
         },
         "left_hip": {
             "position": [
-                "slight hip hinge"
+                "hip hinge"
             ],
             "motion": [
-                "stationary"
+                "flexion",
+                "extension"
             ]
         },
         "right_hip": {
             "position": [
-                "slight hip hinge",
-                "flexed"
+                "hip hinge"
             ],
             "motion": [
-                "stationary"
+                "flexion",
+                "extension"
             ]
         },
         "torso": {
             "position": [
-                "leaning forward",
-                "neutral spine"
+                "upright"
             ],
             "motion": [
                 "stationary"
@@ -47,8 +47,7 @@
         },
         "left_hand": {
             "position": [
-                "holding dumbbell",
-                "arm extended downward"
+                "holding weight at chest"
             ],
             "motion": [
                 "stationary"
@@ -56,17 +55,15 @@
         },
         "right_hand": {
             "position": [
-                "holding dumbbell",
-                "arm extended downward"
+                "holding weight at chest"
             ],
             "motion": [
-                "vertical upward (row)",
-                "vertical downward (release)"
+                "stationary"
             ]
         },
         "left_elbow": {
             "position": [
-                "extended downward"
+                "elbows bent"
             ],
             "motion": [
                 "stationary"
@@ -74,16 +71,15 @@
         },
         "right_elbow": {
             "position": [
-                "extended downward"
+                "elbows bent"
             ],
             "motion": [
-                "flexion during row",
-                "extension during release"
+                "stationary"
             ]
         },
         "left_shoulder": {
             "position": [
-                "neutral"
+                "retracted"
             ],
             "motion": [
                 "stationary"
@@ -91,33 +87,35 @@
         },
         "right_shoulder": {
             "position": [
-                "neutral"
+                "retracted"
             ],
             "motion": [
-                "scapular retraction during row"
+                "stationary"
             ]
         },
         "left_knee": {
             "position": [
-                "slightly bent"
+                "bent"
             ],
             "motion": [
-                "stationary"
+                "flexion",
+                "extension"
             ]
         },
         "right_knee": {
             "position": [
-                "slightly bent"
+                "bent"
             ],
             "motion": [
-                "stationary"
+                "flexion",
+                "extension"
             ]
         }
     },
     "equipment": {
-        "type": "dumbbells",
+        "type": "dumbbell",
         "position": [
-            "one in each hand"
+            "held at chest"
         ]
     }
 }
