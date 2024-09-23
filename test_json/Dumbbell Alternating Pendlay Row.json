@@ -1,0 +1,126 @@
+{
+    "activity": "Dumbbell Row",
+    "body_landmarks": {
+        "left_foot": {
+            "position": [
+                "shoulder-width apart",
+                "flat on ground"
+            ],
+            "motion": [
+                "stationary"
+            ]
+        },
+        "right_foot": {
+            "position": [
+                "shoulder-width apart",
+                "flat on ground"
+            ],
+            "motion": [
+                "stationary"
+            ]
+        },
+        "left_hip": {
+            "position": [
+                "slight hip hinge",
+                "flexed forward"
+            ],
+            "motion": [
+                "stationary"
+            ]
+        },
+        "right_hip": {
+            "position": [
+                "slight hip hinge",
+                "flexed forward"
+            ],
+            "motion": [
+                "stationary"
+            ]
+        },
+        "torso": {
+            "position": [
+                "leaning forward",
+                "neutral spine"
+            ],
+            "motion": [
+                "stationary"
+            ]
+        },
+        "left_hand": {
+            "position": [
+                "holding dumbbell",
+                "arm extended downward"
+            ],
+            "motion": [
+                "vertical downward",
+                "vertical upward"
+            ]
+        },
+        "right_hand": {
+            "position": [
+                "holding dumbbell",
+                "arm slightly extended forward"
+            ],
+            "motion": [
+                "stationary"
+            ]
+        },
+        "left_elbow": {
+            "position": [
+                "extended toward ground"
+            ],
+            "motion": [
+                "flexion",
+                "extension"
+            ]
+        },
+        "right_elbow": {
+            "position": [
+                "slightly bent"
+            ],
+            "motion": [
+                "stationary"
+            ]
+        },
+        "left_shoulder": {
+            "position": [
+                "retracted"
+            ],
+            "motion": [
+                "scapular retraction",
+                "scapular protraction"
+            ]
+        },
+        "right_shoulder": {
+            "position": [
+                "protracted"
+            ],
+            "motion": [
+                "stationary"
+            ]
+        },
+        "left_knee": {
+            "position": [
+                "slightly bent"
+            ],
+            "motion": [
+                "stationary"
+            ]
+        },
+        "right_knee": {
+            "position": [
+                "bent at around 90 degrees"
+            ],
+            "motion": [
+                "stationary"
+            ]
+        }
+    },
+    "equipment": {
+        "type": "dumbbells",
+        "position": [
+            "left hand holding dumbbell",
+            "right hand holding dumbbell on the ground"
+        ]
+    }
+}

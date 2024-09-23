@@ -1,0 +1,128 @@
+{
+    "activity": "Side Plank Rotation",
+    "body_landmarks": {
+        "left_foot": {
+            "position": [
+                "stacked on top of right foot",
+                "on side of foot"
+            ],
+            "motion": [
+                "stationary"
+            ]
+        },
+        "right_foot": {
+            "position": [
+                "side-lying",
+                "side of foot on floor"
+            ],
+            "motion": [
+                "stationary"
+            ]
+        },
+        "left_hip": {
+            "position": [
+                "aligned with body",
+                "elevated off the ground"
+            ],
+            "motion": [
+                "elevate",
+                "lower"
+            ]
+        },
+        "right_hip": {
+            "position": [
+                "aligned with body",
+                "elevated off the ground"
+            ],
+            "motion": [
+                "elevate",
+                "lower"
+            ]
+        },
+        "torso": {
+            "position": [
+                "straight and aligned"
+            ],
+            "motion": [
+                "rotates downward",
+                "rotates upward"
+            ]
+        },
+        "left_hand": {
+            "position": [
+                "resting on torso initially",
+                "moves across body to floor"
+            ],
+            "motion": [
+                "reaches down",
+                "returns back"
+            ]
+        },
+        "right_hand": {
+            "position": [
+                "planted on the mat",
+                "underneath shoulder"
+            ],
+            "motion": [
+                "stationary"
+            ]
+        },
+        "left_elbow": {
+            "position": [
+                "flexed",
+                "arm bent during rotation"
+            ],
+            "motion": [
+                "moves slightly during rotation"
+            ]
+        },
+        "right_elbow": {
+            "position": [
+                "extended",
+                "directly under shoulder"
+            ],
+            "motion": [
+                "stationary"
+            ]
+        },
+        "left_shoulder": {
+            "position": [
+                "neutral"
+            ],
+            "motion": [
+                "stationary",
+                "rotates slightly with torso"
+            ]
+        },
+        "right_shoulder": {
+            "position": [
+                "supporting body weight"
+            ],
+            "motion": [
+                "stationary"
+            ]
+        },
+        "left_knee": {
+            "position": [
+                "straight",
+                "stacked on top of right knee"
+            ],
+            "motion": [
+                "stationary"
+            ]
+        },
+        "right_knee": {
+            "position": [
+                "straight",
+                "resting on the mat"
+            ],
+            "motion": [
+                "stationary"
+            ]
+        }
+    },
+    "equipment": {
+        "type": "None",
+        "position": []
+    }
+}

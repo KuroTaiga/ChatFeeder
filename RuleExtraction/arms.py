@@ -1,7 +1,7 @@
 # arms.py
 
 from constants import STRAIGHT, CLOSE, SPREAD, ARM_KEYS
-from math_helper import calculate_angle, calculate_distance
+from RuleExtraction.helper import calculate_angle, calculate_distance
 
 def generate_arm_rules(joint_positions:dict)->dict:
     """

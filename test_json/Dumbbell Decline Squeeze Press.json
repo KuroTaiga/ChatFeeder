@@ -1,0 +1,130 @@
+{
+    "activity": "Dumbbell Bench Press",
+    "body_landmarks": {
+        "left_foot": {
+            "position": [
+                "flat on ground",
+                "shoulder-width apart"
+            ],
+            "motion": [
+                "stationary"
+            ]
+        },
+        "right_foot": {
+            "position": [
+                "flat on ground",
+                "shoulder-width apart"
+            ],
+            "motion": [
+                "stationary"
+            ]
+        },
+        "left_hip": {
+            "position": [
+                "lying on bench",
+                "neutral hip"
+            ],
+            "motion": [
+                "stationary"
+            ]
+        },
+        "right_hip": {
+            "position": [
+                "lying on bench",
+                "neutral hip"
+            ],
+            "motion": [
+                "stationary"
+            ]
+        },
+        "torso": {
+            "position": [
+                "lying flat on bench"
+            ],
+            "motion": [
+                "stationary"
+            ]
+        },
+        "left_hand": {
+            "position": [
+                "holding dumbbell",
+                "raised, extended"
+            ],
+            "motion": [
+                "lowering toward chest",
+                "pressing upward"
+            ]
+        },
+        "right_hand": {
+            "position": [
+                "holding dumbbell",
+                "raised, extended"
+            ],
+            "motion": [
+                "lowering toward chest",
+                "pressing upward"
+            ]
+        },
+        "left_elbow": {
+            "position": [
+                "extended upward",
+                "bent during motion"
+            ],
+            "motion": [
+                "flexion",
+                "extension"
+            ]
+        },
+        "right_elbow": {
+            "position": [
+                "extended upward",
+                "bent during motion"
+            ],
+            "motion": [
+                "flexion",
+                "extension"
+            ]
+        },
+        "left_shoulder": {
+            "position": [
+                "neutral"
+            ],
+            "motion": [
+                "scapular stability",
+                "flexion"
+            ]
+        },
+        "right_shoulder": {
+            "position": [
+                "neutral"
+            ],
+            "motion": [
+                "scapular stability",
+                "flexion"
+            ]
+        },
+        "left_knee": {
+            "position": [
+                "bent at around 90 degrees"
+            ],
+            "motion": [
+                "stationary"
+            ]
+        },
+        "right_knee": {
+            "position": [
+                "bent at around 90 degrees"
+            ],
+            "motion": [
+                "stationary"
+            ]
+        }
+    },
+    "equipment": {
+        "type": "dumbbells",
+        "position": [
+            "held in both hands",
+            "above chest"
+        ]
+    }
+}
