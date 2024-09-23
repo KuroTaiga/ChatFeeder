@@ -2,15 +2,22 @@
 MATCH_THRESHOLD = 0.5
 # Define the keys for the rules dictionary
 RULE_KEYS = [
-    'posture',
-    'legs',
-    'leg_extension',
-    'arm_position',
-    'left_arm_position',
-    'right_arm_position',
-    'action',
-    'combined_movement'
+    'left_foot',
+    'right_foot',
+    'left_hip',
+    'right_hip',
+    'torso',
+    'left_hand',
+    'right_hand',
+    'left_elbow',
+    'right_elbow',
+    'left_shoulder',
+    'right_shoulder',
+    'left_knee',
+    'right_knee'
 ]
+
+EQUIPMENTS = ['dumbbell','barbell','kettlebell','ball','None']
 
 # List of joint keys used in the system
 JOINT_KEYS = [

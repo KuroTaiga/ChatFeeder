@@ -1,6 +1,6 @@
 # postures.py
 from constants import STANDING, UPRIGHT, BENT, HIP_HINGE_ANGLE_THRESHOLD,CORE_ENGAGEMENT_THRESHOLD
-from RuleExtraction.helper import calculate_distance, calculate_angle
+from helper import calculate_distance, calculate_angle
 
 def determine_posture(joint_positions:dict)->dict:
     postures = []  # Initialize an empty list to store detected postures

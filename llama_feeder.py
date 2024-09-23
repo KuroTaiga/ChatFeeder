@@ -12,8 +12,7 @@ import replicate
 from llamaapi import LlamaAPI
 
 # Set your API keys
-openai.api_key = "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"
-
+openai.api_key = 
 # Initialize the SDK
 #llama = LlamaAPI(llama_api_key)
 # llamaAPI_client = openai.OpenAI(

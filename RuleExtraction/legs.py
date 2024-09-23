@@ -1,7 +1,7 @@
 # legs.py
 
 from constants import STRAIGHT, CLOSE, SPREAD, LEG_KEYS
-from RuleExtraction.helper import calculate_angle, calculate_distance
+from helper import calculate_angle, calculate_distance
 
 def generate_leg_rules(joint_positions:dict)->dict:
     """
