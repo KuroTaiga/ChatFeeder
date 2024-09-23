@@ -1,6 +1,6 @@
 # Rules genereation for specific excercises
 from constants import *
-from RuleExtraction.helper import calculate_distance, calculate_angle
+from helper import calculate_distance, calculate_angle
 def generate_exercise_rules(joint_positions:dict)->dict:
     """
     Generates rules specific to certain exercises based on joint positions.

@@ -110,3 +110,6 @@ def get_joint_positions_from_video(video_path):
     cap.release()
 
     return joint_positions_over_time
+
+def calculate_match(actual,expected):
+    return 0

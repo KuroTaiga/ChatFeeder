@@ -1,31 +1,33 @@
 # main.py
-from helper import  get_joint_positions_from_video
+from helper import  get_joint_positions_from_video,calculate_match
 from constants import JOINT_KEYS, MATCH_THRESHOLD
 from rules_generation import generate_joint_rules
 from exercise_parser import parse_exercise_description
+import os
+import json
 
-def load_yolov7_model(weights_path, img_size=640):
+# def load_yolov7_model(weights_path, img_size=640):
 
-    device = select_device('cuda' if torch.cuda.is_available() else 'cpu')
+#     device = select_device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    model = attempt_load(weights_path, map_location=device)  # Load model
+#     model = attempt_load(weights_path, map_location=device)  # Load model
 
-    stride = int(model.stride.max())  # Get model stride
+#     stride = int(model.stride.max())  # Get model stride
 
-    img_size = check_img_size(img_size, s=stride)  # Check image size
+#     img_size = check_img_size(img_size, s=stride)  # Check image size
 
-    if device.type != 'cpu':
+#     if device.type != 'cpu':
 
-        model.half()  # Convert model to half precision if using GPU
+#         model.half()  # Convert model to half precision if using GPU
 
-    return model, device, stride, img_size
+#     return model, device, stride, img_size
 
 
 def compare_joint_positions(
     actual_rules: dict,
     expected_rules: dict
 ) -> float:
-    
+    matched = calculate_match(actual_rules,expected_rules)
     return matched
 
 def process_exercise(description: str,video_path) -> None:
@@ -56,14 +58,13 @@ def process_exercise(description: str,video_path) -> None:
             print("\nExercise performance did not match the description.")
 
 # Example usage for the specific kettlebell exercise
-descriptions = [(
-    "The person stands with feet shoulder-width apart, holding the kettlebell with both hands between the legs, "
-    "while the torso leans slightly forward, engaging a hinge at the hips. With a controlled movement, "
-    "the body maintains this forward, hinged posture as the hands bring the kettlebell upward toward the lower abdomen, "
-    "driving the elbows back and engaging the back muscles, before reversing the motion smoothly, "
-    "lowering the kettlebell back down in a steady, fluid arc without releasing the hip hinge."
-)]
-
-for desc in descriptions:
-    print(f"\nProcessing: {desc}")
-    process_exercise(desc,video_path)
+TEST_PATH = "../test_json"
+gpt_rules = {}
+for filename in os.listdir(TEST_PATH):
+    base_name = os.path.splitext(filename)[0]
+    currpath = os.path.join(TEST_PATH,filename)
+    with open(currpath,'r') as file:
+        data = json.load(file)
+        gpt_rules[base_name] = data
+    file.close()
+print(gpt_rules)
