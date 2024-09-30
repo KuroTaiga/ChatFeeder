@@ -17,7 +17,7 @@ RULE_KEYS = [
     'right_knee'
 ]
 
-EQUIPMENTS = ['dumbbell','barbell','kettlebell','ball','None']
+EQUIPMENTS = ['dumbbell','barbell','kettlebell','ball','none']
 
 # List of joint keys used in the system
 JOINT_KEYS = [
