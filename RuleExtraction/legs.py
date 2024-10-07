@@ -4,23 +4,81 @@
 
 #feet: dorsiflexion and plantar flextion, inversion and eversion
 #knee: lateral rotaion and medialk rotation
-from constants import STRAIGHT, CLOSE, SPREAD, LEG_KEYS
+from constants import STRAIGHT, CLOSE, SPREAD, LEG_KEYS, SHOULDER_RANGE, FLEXED, BENT_RANGE
 from helper import calculate_angle, calculate_distance, get_empty_leg_position, get_empty_leg_motion
+
 def determine_leg_position_rule(joint_positions: dict) -> dict:
     """
-    Generate position rules for legs based on joint positions.
+    Generate position rules for legs (foot and knee) based on joint positions.
     :param joint_positions: The dictionary of joint positions from pose detection.
     :return: A dictionary of leg landmarks with positions.
     """
-    leg_landmarks = get_empty_leg_position()
+    leg_rules = {
+        "left_knee": {"position": []},
+        "right_knee": {"position": []},
+        "left_foot": {"position": []},
+        "right_foot": {"position": []}
+    }
 
-    # Example logic: determine the position of the knees and ankles
-    if joint_positions['left_knee']:
-        leg_landmarks["left_knee"]["position"].append("bent at 90 degrees")  # Example condition
-    if joint_positions['right_knee']:
-        leg_landmarks["right_knee"]["position"].append("flexed")  # Example condition
+    left_foot = joint_positions.get('left_foot', {'x': None, 'y': None})
+    right_foot = joint_positions.get('right_foot', {'x': None, 'y': None})
+    left_knee = joint_positions.get('left_knee', {'x': None, 'y': None})
+    right_knee = joint_positions.get('right_knee', {'x': None, 'y': None})
+    left_hip = joint_positions.get('left_hip', {'x': None, 'y': None})
+    right_hip = joint_positions.get('right_hip', {'x': None, 'y': None})
 
-    return leg_landmarks
+    # Foot position rules
+    if left_foot['y'] and right_foot['y']:
+        # Check if feet are on the ground
+        leg_rules["left_foot"]["position"].append("on ground")
+        leg_rules["right_foot"]["position"].append("on ground")
+        
+        # Check if feet are flat (y-coordinates similar)
+        if abs(left_foot['y'] - right_foot['y']) < 0.02:
+            leg_rules["left_foot"]["position"].append("flat")
+            leg_rules["right_foot"]["position"].append("flat")
+        
+        # Shoulder-width apart check (distance between feet relative to shoulder width)
+        left_shoulder = joint_positions.get('left_shoulder', {'x': None, 'y': None})
+        right_shoulder = joint_positions.get('right_shoulder', {'x': None, 'y': None})
+        
+        if all([left_shoulder['x'], right_shoulder['x'], left_foot['x'], right_foot['x']]):
+            shoulder_distance = abs(left_shoulder['x'] - right_shoulder['x'])
+            foot_distance = abs(left_foot['x'] - right_foot['x'])
+            
+            if 0.9 * shoulder_distance <= foot_distance <= SHOULDER_RANGE * shoulder_distance:  # Within ~10% of shoulder width
+                leg_rules["left_foot"]["position"].append("shoulder-width apart")
+                leg_rules["right_foot"]["position"].append("shoulder-width apart")
+
+    # Placeholder for "on bench" rule
+    if False:  # Placeholder logic, to be updated
+        leg_rules["left_foot"]["position"].append("on bench")
+        leg_rules["right_foot"]["position"].append("on bench")
+
+    # Knee position rules
+    if all([left_hip['x'], left_knee['x'], left_foot['x']]):
+        # Calculate the angle for the left knee
+        left_knee_angle = calculate_angle(left_hip, left_knee, left_foot)
+        if left_knee_angle is not None:
+            if left_knee_angle < FLEXED:
+                leg_rules["left_knee"]["position"].append("flexed")
+            elif BENT_RANGE> abs(left_knee_angle-FLEXED):
+                leg_rules["left_knee"]["position"].append("bent at 90 degrees")
+            else:
+                leg_rules["left_knee"]["position"].append("bent")
+
+    if all([right_hip['x'], right_knee['x'], right_foot['x']]):
+        # Calculate the angle for the right knee
+        right_knee_angle = calculate_angle(right_hip, right_knee, right_foot)
+        if right_knee_angle is not None:
+            if right_knee_angle < FLEXED:
+                leg_rules["right_knee"]["position"].append("flexed")
+            elif BENT_RANGE> abs(right_knee_angle-FLEXED):
+                leg_rules["right_knee"]["position"].append("bent at 90 degrees")
+            else:
+                leg_rules["right_knee"]["position"].append("bent")
+
+    return leg_rules
 
 
 def determine_leg_motion_rule(joint_positions_over_time: list) -> dict:

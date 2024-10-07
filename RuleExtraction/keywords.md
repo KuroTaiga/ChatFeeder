@@ -13,23 +13,6 @@ hand
 "over chest",
 "over head"
 
-foot
-"flat"
-"should-width apart"
-"on bench"
-"on ground"
-
-hip
-"seated"
-"hip hinge"
-
-torsol:
-"upright",
-"neutral spine",
-"on bench",
-"leaning forward",
-"leaning backward"
-
 elbow:
 "close to torso",
 "flexed",
@@ -43,6 +26,23 @@ shoulder:
 "retracted",
 "neutral",
 "protracted"
+
+hip
+"seated"
+"hip hinge"
+
+torso:
+"upright",
+"neutral spine",
+"on bench",
+"leaning forward",
+"leaning backward"
+
+foot
+"flat"
+"should-width apart"
+"on bench"
+"on ground"
 
 knee:
 "flexed"

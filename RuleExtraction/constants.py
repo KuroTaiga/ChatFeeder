@@ -34,7 +34,11 @@ BODY_KEYS = ['torso','left_hip','right_hip','left_shoulder','right_shoulder']
 # Threshold constants for position detection (e.g., distances in pixels or units used)
 CLOSE = 10.0          # Threshold to determine if two points are 'close' to each other
 SPREAD = 50.0         # Threshold to determine if arms are 'spread' apart
-
+OUTWARD = 15.0
+INWARD = 5.0
+FLEXED = 90.0
+BENT_RANGE = 5.0
+SHOULDER_RANGE = 1.1
 # Constants for angle thresholds (in degrees)
 STRAIGHT = 8.0                        # Degrees; threshold to consider a limb 'straight'
 HIP_HINGE_ANGLE_THRESHOLD = 30.0      # Degrees; threshold for detecting 'hip_hinge' posture
