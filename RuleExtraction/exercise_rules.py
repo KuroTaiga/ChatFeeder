@@ -1,6 +1,48 @@
 #exercise_rules
 # try manual extraction of rules for 30 exececises
 # in the format of list of json
+def build_rule_dict(rules):
+    body_landmarks_dict = {}
+    equipment_dict = {}
+    other_dict = {}
+    # Iterate through the list of exercise rules
+    for rule in rules:
+        activity_name = rule.get("activity", "").strip().lower()
+
+        if activity_name:  # Ensure the activity name is not empty
+            body_landmarks_dict[activity_name] = rule.get("body_landmarks", {})
+            equipment_dict[activity_name] = rule.get("equipment", {})
+            other_dict[activity_name] = rule.get("other",{})
+    return body_landmarks_dict, equipment_dict, other_dict
+
+def get_sub_rules_for_activities(activities: list, body: dict, equipment:dict, other: dict) -> tuple:
+    body_sub_rules = {}
+    equipment_sub_rules = {}
+    other_subrules = {}
+
+    for activity in activities:
+        if activity in body and activity in equipment and activity in other:
+            body_sub_rules[activity] = body[activity]
+            equipment_sub_rules[activity] = equipment[activity]
+            other_subrules[activity] = other[activity]
+        else:
+            raise ValueError(f"Activity '{activity}' not found in the rules.")
+
+    return body_sub_rules,equipment_sub_rules,other_subrules
+
+def get_exercise_names(json_rules)-> list:
+    name_set = set()
+    for exercise in json_rules:
+        try:
+            curr = exercise.get("activity","").strip().lower()
+            if curr:
+                if curr in name_set:
+                    raise ValueError(f"Duplication activity found: {curr}")
+                name_set.add(curr)
+        except ValueError as ve:
+            print(ve)
+    return list(name_set)  
+
 def build_exercise_rules_json() -> list:
     exercise_rules = [
         {
@@ -63,7 +105,7 @@ def build_exercise_rules_json() -> list:
                 "type": ["bench","dumbbell"],
                 "bench incline":["45"]
             },
-            "mirrored motion":{
+            "other":{
                 "mirrored":"true"
             }
         },
@@ -127,7 +169,7 @@ def build_exercise_rules_json() -> list:
                 "type": ["dumbbell"],
                 "bench incline":["none"]
             },
-            "mirrored motion":{
+            "other":{
                 "mirrored":"false"
             }
         },
@@ -191,12 +233,12 @@ def build_exercise_rules_json() -> list:
                 "type": ["bumbbell","bench"],
                 "bench incline":["0"]
             },
-            "mirrored motion":{
+            "other":{
                 "mirrored":"false"
             }
         },
         {
-            "activity": "Bumbbell Carf Raise",
+            "activity": "Dumbbell Calf Raise",
             "body_landmarks": {
                 "left_foot": {
                     "position": ["flat", "on ground"],
@@ -255,7 +297,7 @@ def build_exercise_rules_json() -> list:
                 "type": ["dumbbell"],
                 "bench incline":["none"]
             },
-            "mirrored motion":{
+            "other":{
                 "mirrored":"true"
             }
         },
@@ -319,7 +361,7 @@ def build_exercise_rules_json() -> list:
                 "type": ["bench","dumbbell"],
                 "bench incline":["0"]
             },
-            "mirrored motion":{
+            "other":{
                 "mirrored":"true"
             }
         },
@@ -387,12 +429,12 @@ def build_exercise_rules_json() -> list:
                 "type": ["dumbbell"],
                 "bench incline":["none"]
             },
-            "mirrored motion":{
+            "other":{
                 "mirrored":"true"
             }
         },
         {
-            "activity": "Dumbebell Decline Chest Press",
+            "activity": "Dumbbell Decline Chest Press",
             "body_landmarks": {
                 "left_foot": {
                     "position": [ "flat","on ground"],
@@ -451,12 +493,12 @@ def build_exercise_rules_json() -> list:
                 "type": ["bench","dumbbell"],
                 "bench incline":["0"]
             },
-            "mirrored motion":{
+            "other":{
                 "mirrored":"true"
             }
         },
         {
-            "activity": "Dumbbell Declione Guillotine Bench Press",
+            "activity": "Dumbbell Decline Guillotine Bench Press",
             "body_landmarks": {
                 "left_foot": {
                     "position": [ "flat","on ground"],
@@ -516,7 +558,7 @@ def build_exercise_rules_json() -> list:
                 "type": ["bench","dumbbell"],
                 "bench incline":["0"]
             },
-            "mirrored motion":{
+            "other":{
                 "mirrored":"true"
             }
         },
@@ -580,7 +622,7 @@ def build_exercise_rules_json() -> list:
                 "type": ["bench","dumbbell"],
                 "bench incline":["0"]
             },
-            "mirrored motion":{
+            "other":{
                 "mirrored":"false"
             }
         },
@@ -644,7 +686,7 @@ def build_exercise_rules_json() -> list:
                 "type": ["bench","dumbbell"],
                 "bench incline":["0"]
             },
-            "mirrored motion":{
+            "other":{
                 "mirrored":"true"
             }
         },
@@ -708,7 +750,7 @@ def build_exercise_rules_json() -> list:
                 "type": [],
                 "bench incline":["none"]
             },
-            "mirrored motion":{
+            "other":{
                 "mirrored":"false"
             }
         },
@@ -772,12 +814,12 @@ def build_exercise_rules_json() -> list:
                 "type": [],
                 "bench incline":["none"]
             },
-            "mirrored motion":{
+            "other":{
                 "mirrored":"false"
             }
         },#TODO
         {
-            "activity": "Bumbbell Decline Squeeze Press",
+            "activity": "Dumbbell Decline Squeeze Press",
             "body_landmarks": {
                 "left_foot": {
                     "position": [],
@@ -836,7 +878,7 @@ def build_exercise_rules_json() -> list:
                 "type": [],
                 "bench incline":["none"]
             },
-            "mirrored motion":{
+            "other":{
                 "mirrored":"false"
             }
         },{
@@ -899,7 +941,7 @@ def build_exercise_rules_json() -> list:
                 "type": [],
                 "bench incline":["none"]
             },
-            "mirrored motion":{
+            "other":{
                 "mirrored":"false"
             }
         },
@@ -963,7 +1005,7 @@ def build_exercise_rules_json() -> list:
                 "type": ["dumbbell","bench"],
                 "bench incline":["0"]
             },
-            "mirrored motion":{
+            "other":{
                 "mirrored":"false"
             }
         },{
@@ -1026,7 +1068,7 @@ def build_exercise_rules_json() -> list:
                 "type": ["Dumbbell"],
                 "bench incline":["none"]
             },
-            "mirrored motion":{
+            "other":{
                 "mirrored":"false"
             }
         },
@@ -1090,7 +1132,7 @@ def build_exercise_rules_json() -> list:
                 "type": ["Dumbbell"],
                 "bench incline":["none"]
             },
-            "mirrored motion":{
+            "other":{
                 "mirrored":"false"
             }
         },
@@ -1154,7 +1196,7 @@ def build_exercise_rules_json() -> list:
                 "type": ["Dumbbell"],
                 "bench incline":["none"]
             },
-            "mirrored motion":{
+            "other":{
                 "mirrored":"false"
             }
         },{
@@ -1217,7 +1259,7 @@ def build_exercise_rules_json() -> list:
                 "type": ["Dumbbell"],
                 "bench incline":["none"]
             },
-            "mirrored motion":{
+            "other":{
                 "mirrored":"false"
             }
         },{
@@ -1280,11 +1322,11 @@ def build_exercise_rules_json() -> list:
                 "type": ["Kettlebell"],
                 "bench incline":["none"]
             },
-            "mirrored motion":{
+            "other":{
                 "mirrored":"false"
             }
         },{
-            "activity": "Kettlebell Decline Chest Press",
+            "activity": "Kettlebell Chest Press",
             "body_landmarks": {
                 "left_foot": {
                     "position": [ "flat","on ground"],
@@ -1343,7 +1385,7 @@ def build_exercise_rules_json() -> list:
                 "type": ["bench","kettlebell"],
                 "bench incline":["0"]
             },
-            "mirrored motion":{
+            "other":{
                 "mirrored":"true"
             }
         },{
@@ -1406,7 +1448,7 @@ def build_exercise_rules_json() -> list:
                 "type": [],
                 "bench incline":["none"]
             },
-            "mirrored motion":{
+            "other":{
                 "mirrored":"false"
             }
         },{
@@ -1469,7 +1511,7 @@ def build_exercise_rules_json() -> list:
                 "type": [],
                 "bench incline":["none"]
             },
-            "mirrored motion":{
+            "other":{
                 "mirrored":"false"
             }
         },{
@@ -1532,7 +1574,7 @@ def build_exercise_rules_json() -> list:
                 "type": [],
                 "bench incline":["none"]
             },
-            "mirrored motion":{
+            "other":{
                 "mirrored":"false"
             }
         },{
@@ -1595,7 +1637,7 @@ def build_exercise_rules_json() -> list:
                 "type": [],
                 "bench incline":["none"]
             },
-            "mirrored motion":{
+            "other":{
                 "mirrored":"false"
             }
         },{
@@ -1658,7 +1700,7 @@ def build_exercise_rules_json() -> list:
                 "type": [],
                 "bench incline":["none"]
             },
-            "mirrored motion":{
+            "other":{
                 "mirrored":"false"
             }
         },{
@@ -1721,7 +1763,7 @@ def build_exercise_rules_json() -> list:
                 "type": [],
                 "bench incline":["none"]
             },
-            "mirrored motion":{
+            "other":{
                 "mirrored":"false"
             }
         },{
@@ -1784,7 +1826,7 @@ def build_exercise_rules_json() -> list:
                 "type": [],
                 "bench incline":["none"]
             },
-            "mirrored motion":{
+            "other":{
                 "mirrored":"false"
             }
         },{
@@ -1847,7 +1889,7 @@ def build_exercise_rules_json() -> list:
                 "type": [],
                 "bench incline":["none"]
             },
-            "mirrored motion":{
+            "other":{
                 "mirrored":"false"
             }
         },{
@@ -1910,7 +1952,7 @@ def build_exercise_rules_json() -> list:
                 "type": [],
                 "bench incline":["none"]
             },
-            "mirrored motion":{
+            "other":{
                 "mirrored":"false"
             }
         }

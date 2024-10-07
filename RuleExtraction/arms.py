@@ -1,9 +1,43 @@
 # arms.py
 
 from constants import STRAIGHT, CLOSE, SPREAD, ARM_KEYS
-from helper import calculate_angle, calculate_distance
+from helper import calculate_angle, calculate_distance, get_empty_arm_position,get_empty_arm_motion,get_arm_landmarks
+def determine_arm_position_rule(joint_positions: dict) -> dict:
+    """
+    Generate position rules for arms based on joint positions.
+    :param joint_positions: The dictionary of joint positions from pose detection.
+    :return: A dictionary of arm landmarks with positions.
+    """
+    arm_landmarks = get_empty_arm_position()
 
-def generate_arm_rules(joint_positions:dict)->dict:
+    # Example logic: determine the position of the elbows and wrists based on joint positions
+    if joint_positions['left_elbow']:
+        arm_landmarks["left_elbow"]["position"].append("flexed")  # Example condition
+    if joint_positions['right_elbow']:
+        arm_landmarks["right_elbow"]["position"].append("extended")  # Example condition
+
+    # Repeat similar logic for wrists or other conditions
+
+    return arm_landmarks
+
+
+def determine_arm_motion_rule(joint_positions_over_time: list) -> dict:
+    """
+    Generate motion rules for arms based on joint positions over time.
+    :param joint_positions_over_time: A list of joint positions across multiple frames.
+    :return: A dictionary of arm landmarks with motions.
+    """
+    arm_landmarks = get_empty_arm_motion()
+
+    # Example logic: analyze motion based on joint positions over time
+    for frame in joint_positions_over_time:
+        # Check movement between frames for arms
+        if frame['left_elbow']:
+            arm_landmarks["left_elbow"]["motion"].append("extension")  # Example condition
+
+    return arm_landmarks
+
+def old_generate_arm_rules(joint_positions:dict)->dict:
     """
     Generates rules related to arm positions based on joint positions.
 

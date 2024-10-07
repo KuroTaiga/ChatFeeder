@@ -1,4 +1,5 @@
 # math_helper.py
+import os
 import mediapipe as mp
 import math
 import cv2
@@ -38,7 +39,7 @@ def calculate_distance(a: Tuple[float, float], b: Tuple[float, float]) -> float:
     """
     return math.hypot(a[0] - b[0], a[1] - b[1])
 
-def get_joint_positions_from_video(video_path):
+def get_joint_positions_from_video_old(video_path):
     mp_pose = mp.solutions.pose
     pose = mp_pose.Pose(static_image_mode=False, min_detection_confidence=0.5, min_tracking_confidence=0.5)
     cap = cv2.VideoCapture(video_path)
@@ -111,5 +112,165 @@ def get_joint_positions_from_video(video_path):
 
     return joint_positions_over_time
 
+def get_empty_landmarks():
+    return {
+        "left_foot": {"position": [], "motion": []},
+        "right_foot": {"position": [], "motion": []},
+        "left_hip": {"position": [], "motion": []},
+        "right_hip": {"position": [], "motion": []},
+        "torso": {"position": [], "motion": []},
+        "left_hand": {"position": [], "motion": []},
+        "right_hand": {"position": [], "motion": []},
+        "left_elbow": {"position": [], "motion": []},
+        "right_elbow": {"position": [], "motion": []},
+        "left_shoulder": {"position": [], "motion": []},
+        "right_shoulder": {"position": [], "motion": []},
+        "left_knee": {"position": [], "motion": []},
+        "right_knee": {"position": [], "motion": []}
+    }
+def get_torso_landmarks():
+    return {
+        "torso": {"position": [], "motion": []},
+        "left_hip": {"position": [], "motion": []},
+        "right_hip": {"position": [], "motion": []},
+        "left_shoulder": {"position": [], "motion": []},
+        "right_shoulder": {"position": [], "motion": []}
+    }
+def get_arm_landmarks():
+    return {
+        "left_elbow": {"position": [], "motion": []},
+        "right_elbow": {"position": [], "motion": []},
+        "left_wrist": {"position": [], "motion": []},
+        "right_wrist": {"position": [], "motion": []},
+        "left_hand": {"position": [], "motion": []},
+        "right_hand": {"position": [], "motion": []}
+    }
+def get_leg_landmarks():
+    return {
+        "left_knee": {"position": [], "motion": []},
+        "right_knee": {"position": [], "motion": []},
+        "left_ankle": {"position": [], "motion": []},
+        "right_ankle": {"position": [], "motion": []},
+        "left_foot": {"position": [], "motion": []},
+        "right_foot": {"position": [], "motion": []}
+    }
+def get_empty_motion():
+    return {
+        "left_foot": {"motion": []},
+        "right_foot": {"motion": []},
+        "left_hip": {"motion": []},
+        "right_hip": {"motion": []},
+        "torso": {"motion": []},
+        "left_hand": {"motion": []},
+        "right_hand": {"motion": []},
+        "left_elbow": {"motion": []},
+        "right_elbow": {"motion": []},
+        "left_shoulder": {"motion": []},
+        "right_shoulder": {"motion": []},
+        "left_knee": {"motion": []},
+        "right_knee": {"motion": []}
+    }
+
+def get_empty_torso_motion():
+    return {
+        "torso": {"motion": []},
+        "left_hip": {"motion": []},
+        "right_hip": {"motion": []},
+        "left_shoulder": {"motion": []},
+        "right_shoulder": {"motion": []},
+    }
+def get_empty_arm_motion():
+    return {
+        "left_elbow": {"motion": []},
+        "right_elbow": {"motion": []},
+        "left_wrist": {"motion": []},
+        "right_wrist": {"motion": []},
+        "left_hand": {"motion": []},
+        "right_hand": {"motion": []}
+    }
+def get_empty_leg_motion():
+    return {
+        "left_knee": {"motion": []},
+        "right_knee": {"motion": []},
+        "left_ankle": {"motion": []},
+        "right_ankle": {"motion": []},
+        "left_foot": {"motion": []},
+        "right_foot": {"motion": []}
+    }
+def get_empty_position():
+    return {
+        "left_foot": {"position": []},
+        "right_foot": {"position": []},
+        "left_hip": {"position": []},
+        "right_hip": {"position": []},
+        "torso": {"position": []},
+        "left_hand": {"position": []},
+        "right_hand": {"position": []},
+        "left_elbow": {"position": []},
+        "right_elbow": {"position": []},
+        "left_shoulder": {"position": []},
+        "right_shoulder": {"position": []},
+        "left_knee": {"position": []},
+        "right_knee": {"position": []}
+    }
+
+def get_empty_torso_position():
+    return {
+        "torso": {"position": []},
+        "left_hip": {"position": []},
+        "right_hip": {"position": []},
+        "left_shoulder": {"position": []},
+        "right_shoulder": {"position": []},
+    }
+def get_empty_arm_position():
+    return {
+        "left_elbow": {"position": []},
+        "right_elbow": {"position": []},
+        "left_wrist": {"position": []},
+        "right_wrist": {"position": []},
+        "left_hand": {"position": []},
+        "right_hand": {"position": []}
+    }
+
+def get_empty_leg_position():
+    return {
+        "left_knee": {"position": []},
+        "right_knee": {"position": []},
+        "left_ankle": {"position": []},
+        "right_ankle": {"position": []},
+        "left_foot": {"position": []},
+        "right_foot": {"position": []}
+    }
+
+
 def calculate_match(actual,expected):
     return 0
+
+def get_video_path(root_dir: str, target: list)->tuple:
+    video_result = []
+    exercise_result = []
+    for dirpath,_,filenames in os.walk(root_dir):
+        for filename in filenames:
+            if filename.endswith(".mp4"):
+                curr = os.path.splitext(filename)[0].lower()
+                if curr in target:
+                    exercise_result.append(curr)
+                    video_result.append(os.path.join(dirpath,filename))
+                else:
+                    print(f"video name not found in exercise: {curr}")
+    return video_result,exercise_result
+
+def build_rule_dict(rules):
+    body_landmarks_dict = {}
+    equipment_dict = {}
+    other_dict = {}
+    # Iterate through the list of exercise rules
+    for rule in rules:
+        activity_name = rule.get("activity", "").strip()
+
+        if activity_name:  # Ensure the activity name is not empty
+            body_landmarks_dict[activity_name] = rule.get("body_landmarks", {})
+            equipment_dict[activity_name] = rule.get("equipment", {})
+            other_dict[activity_name] = rule.get("other",{})
+    return body_landmarks_dict, equipment_dict, other_dict
+

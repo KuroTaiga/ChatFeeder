@@ -16,9 +16,9 @@ RULE_KEYS = [
     'left_knee',
     'right_knee'
 ]
-
-EQUIPMENTS = ['dumbbell','barbell','kettlebell','ball','none']
-
+MIRRORED = ['true','false']
+EQUIPMENTS = ['dumbbell','barbell','kettlebell','ball']
+INCLINE = ['0','15','45','60','90','none']
 # List of joint keys used in the system
 JOINT_KEYS = [
     'left_shoulder', 'right_shoulder', 'left_elbow', 'right_elbow',
@@ -26,15 +26,11 @@ JOINT_KEYS = [
     'left_knee', 'right_knee', 'left_ankle', 'right_ankle'
 ]
 # List of keys from arm and leg rules
-ARM_KEYS = ['arm_position', 'left_arm_position', 'right_arm_position']
-LEG_KEYS = ['leg_position', 'left_leg_position', 'right_leg_position']
+ARM_KEYS = ['left_hand', 'right_hand', 'left_elbow','right_elbow']
+LEG_KEYS = ['left_foot', 'right_foot', 'left_knee','right_knee']
+BODY_KEYS = ['torso','left_hip','right_hip','left_shoulder','right_shoulder']
 # List of keys from specific exercise rules
-EXERCISE_KEYS = [
-        'posture',
-        'arm_position',
-        'leg_position',
-        'exercise_specific'
-    ]
+
 # Threshold constants for position detection (e.g., distances in pixels or units used)
 CLOSE = 10.0          # Threshold to determine if two points are 'close' to each other
 SPREAD = 50.0         # Threshold to determine if arms are 'spread' apart
@@ -46,6 +42,8 @@ HIP_HINGE_ANGLE_THRESHOLD = 30.0      # Degrees; threshold for detecting 'hip_hi
 # Constants for posture detection (distance thresholds)
 STANDING = 20.0                       # Vertical distance threshold for 'standing' posture
 UPRIGHT = 15.0                        # Vertical distance threshold for 'upright' posture
+NEUTRAL_SPINE = 5.0
+LEAN = 10.0
 BENT = 40.0                           # Vertical distance threshold for 'bent' posture
 
 # Constant for core engagement detection (distance threshold)

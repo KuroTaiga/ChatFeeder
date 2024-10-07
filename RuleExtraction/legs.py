@@ -1,9 +1,44 @@
 # legs.py
+# leg rules generation using anatomical terms
+# it includes movement and position of left and right sides of food/ankle, knees and hip
 
+#feet: dorsiflexion and plantar flextion, inversion and eversion
+#knee: lateral rotaion and medialk rotation
 from constants import STRAIGHT, CLOSE, SPREAD, LEG_KEYS
-from helper import calculate_angle, calculate_distance
+from helper import calculate_angle, calculate_distance, get_empty_leg_position, get_empty_leg_motion
+def determine_leg_position_rule(joint_positions: dict) -> dict:
+    """
+    Generate position rules for legs based on joint positions.
+    :param joint_positions: The dictionary of joint positions from pose detection.
+    :return: A dictionary of leg landmarks with positions.
+    """
+    leg_landmarks = get_empty_leg_position()
 
-def generate_leg_rules(joint_positions:dict)->dict:
+    # Example logic: determine the position of the knees and ankles
+    if joint_positions['left_knee']:
+        leg_landmarks["left_knee"]["position"].append("bent at 90 degrees")  # Example condition
+    if joint_positions['right_knee']:
+        leg_landmarks["right_knee"]["position"].append("flexed")  # Example condition
+
+    return leg_landmarks
+
+
+def determine_leg_motion_rule(joint_positions_over_time: list) -> dict:
+    """
+    Generate motion rules for legs based on joint positions over time.
+    :param joint_positions_over_time: A list of joint positions across multiple frames.
+    :return: A dictionary of leg landmarks with motions.
+    """
+    leg_landmarks = get_empty_leg_motion()
+    # Example logic: analyze motion based on joint positions over time
+    for frame in joint_positions_over_time:
+        # Check movement between frames for legs
+        if frame['left_knee']:
+            leg_landmarks["left_knee"]["motion"].append("flexion")  # Example condition
+
+    return leg_landmarks
+
+def old_generate_leg_rules(joint_positions:dict)->dict:
     """
     Generates rules related to leg positions based on joint positions.
 
