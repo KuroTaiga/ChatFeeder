@@ -1,6 +1,10 @@
 import torch
 import cv2
 import mediapipe as mp
+from pathlib import Path
+from yolov7.models.experimental import attempt_load  # Import this from YOLOv7 implementation
+from yolov7.utils.torch_utils import select_device
+from yolov7.utils.general import check_img_size
 
 class YOLOv7EquipmentDetector:
     def __init__(self, model_path, equipment_list):
@@ -9,22 +13,49 @@ class YOLOv7EquipmentDetector:
         :param model_path: Path to the .pt file for YOLOv7 model weights.
         :param equipment_list: List of equipment to detect (e.g., ["bench", "dumbbell", "barbell", "kettlebell", "ball"]).
         """
-        self.model = torch.hub.load('./yolov7', 'custom', path_or_model=model_path, source='local')  # Load YOLOv7 model
+        #self.model = torch.hub.load('./yolov7', 'custom', path_or_model=model_path, source='local')  # Load YOLOv7 model
+        self.model, self.device, self.stride, self.img_size = self.load_yolov7_model(model_path)
         self.equipment_list = equipment_list
 
+    def load_yolov7_model(self,weights_path, img_size=640):
+        if not Path(weights_path).exists:
+            raise FileNotFoundError(f"Weights file not found {weights_path}")
+        device = select_device('cuda' if torch.cuda.is_available() else 'cpu')  # Select device
+        model = attempt_load(weights_path, map_location=device)  # Load the model onto the device
+        stride = int(model.stride.max())  # Get model stride
+        img_size = check_img_size(img_size, s=stride)  # Adjust image size based on model stride
+
+        if device.type != 'cpu':
+            model.half()  # Convert to half precision for better performance on GPUs
+
+        return model, device, stride, img_size
     def detect_equipment(self, frame):
         """
         Detect equipment in a given frame.
         :param frame: A single frame from the video (numpy array).
         :return: A list of detected equipment names.
         """
-        results = self.model(frame)  # Run YOLOv7 on the frame
-        detections = results.xyxy[0]  # Get detection results
+        img_size = self.img_size  # Assuming the model has been loaded with this size
+        resized_frame = cv2.resize(frame, (img_size, img_size)) 
+
+        frame_tensor = torch.from_numpy(resized_frame).to(self.device).float() / 255.0  # Normalize to [0, 1]
+        frame_tensor = frame_tensor.permute(2,0,1)
+        if self.device.type != 'cpu':
+            frame_tensor = frame_tensor.half()
+        # Ensure the tensor is in the correct format (Batch size, Channels, Height, Width)
+        if frame_tensor.ndimension() == 3:  # Add batch dimension if missing
+            frame_tensor = frame_tensor.unsqueeze(0)
+        results = self.model(frame_tensor)[0]  # Run YOLOv7 on the frame
+
         detected_equipment = []
 
-        for detection in detections:
-            label = results.names[int(detection[5])]  # Get the label of the detected object
-            if label in self.equipment_list:  # Check if the label is in the provided equipment list
+        for detection in results:
+            # x1, y1, x2, y2 = detection[0].item(), detection[1].item(), detection[2].item(), detection[3].item()
+            confidence = detection[4].item()
+            class_idx = int(detection[5].item())  # Convert class index to int
+
+            label = self.model.names[int(class_idx)]  # Convert class index to class label
+            if label in self.equipment_list and confidence > 0.5:  # Check confidence threshold
                 detected_equipment.append(label)
 
         return detected_equipment

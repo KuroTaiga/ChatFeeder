@@ -33,7 +33,7 @@ test_run_folder_path = "./test_run"
 #prompt = "This is an iamge that contains 3 seperate frames from a blender render of a workout activity. Discribe in detail the body movement of the activity."
 Xiang_prompt = "Please provide a single-paragraph summary of the sequence of poses, integrating the key actions and body positions into a fluid, continuous description. Avoid breaking the description into separate positions, and focus on capturing the seamless flow of movement and the overall effect on the body. For reference, here are a few examples of the style and structure expected: 'Stand behind a bench, with the chest leaning over the edge of the bench. With one arm resting on the bench, hold the kettlebell, bending the arm at the elbow. Lower the arm using the bench as a guide, keeping the forearm straight.' 'The user stands, both hands holding a kettlebell, moving it toward the face, then returning it to the wrist.' 'Upper arms stable, curl the weights forward until the barbell reaches shoulder level. Lower the weight back to the starting position.' 'The person stands upright with legs together, arms extended above the head, palms facing inward. The head follows the line of the arms, with eyes gazing upward.' Ensure the summary captures the entire sequence as one continuous motion rather than separate steps."
 system_prompt = "You are to describe the activity based one the image provided. The image is in base64 encoded format."
-llama_prompt = "Can you take image as input?"
+# llama_prompt = "Can you take image as input?"
 
 #modified the prompt here
 JSON_example = {
@@ -99,8 +99,101 @@ JSON_example = {
 }
 JSON_string = json.dumps(JSON_example,indent=4)
 
-JSON_instruction  = "ONLY provide a dictionary in JSON file that captures the movements and postions of each body landmark from the give picture. Your response should only contain the JSON file with no other reponses The picture contains 3 frames of the same workout activity. Use concise and precise language. Use keywords to describe motion and positions. Here's an example that contains the bodyland marks you should be using. If there's no equipment, use 'None'. The provided picture has the name of the activity"
-JSON_prompt = JSON_instruction+JSON_string
+JSON_instruction  = "ONLY provide a dictionary in JSON file that captures the movements and postions of each body landmark from the give picture. The given picture contains a set of images that are frames from a 3D render of an exercise. Your response should only contain the JSON file with no other reponses The picture contains 3 frames of the same workout activity. Use concise and precise language. Use keywords to describe motion and positions. Here's an example that contains the bodyland marks you should be using. If there's no equipment, use 'None'. Avoid describe each frame individually. You should describe the exercise as a fluid motion. The provided picture has the name of the activity."
+Keywords_json = {
+    "old": {
+        "position": {
+            "hand": [
+                "holding equipment",
+                "horizontal outward",
+                "horizontal inward",
+                "vertical upward",
+                "vertical downward",
+                "over chest",
+                "over head"
+            ],
+            "elbow": [
+                "close to torso",
+                "flexed",
+                "extended",
+                "slightly flexed",
+                "slightly extended",
+                "bent at 90 degrees"
+            ],
+            "shoulder": [
+                "on bench",
+                "retracted",
+                "neutral",
+                "protracted"
+            ],
+            "hip": [
+                "seated",
+                "hip hinge"
+            ],
+            "torso": [
+                "upright",
+                "neutral spine",
+                "on bench",
+                "leaning forward",
+                "leaning backward"
+            ],
+            "foot": [
+                "flat",
+                "shoulder-width apart",
+                "on bench",
+                "on ground"
+            ],
+            "knee": [
+                "flexed",
+                "bent",
+                "bent at 90 degrees"
+            ]
+        },
+        "motion": [
+            "stationary",
+            "horizontal outward",
+            "horizontal inward",
+            "vertical upward",
+            "vertical downward",
+            "extension",
+            "flexion",
+            "abduction",
+            "adduction",
+            "lateral rotation",
+            "medial rotation",
+            "scapular protraction",
+            "scapular retraction",
+            "row",
+            "plantar flexion",
+            "dorsiflexion"
+        ],
+        "equipment": [
+            "bench",
+            "dumbbell",
+            "barbell",
+            "kettlebell",
+            "none",
+            "ball"
+        ],
+        "mirrored_motion": [
+            "true",
+            "false"
+        ],
+        "bench_incline": [
+            0,
+            15,
+            45,
+            60,
+            90,
+            "none"
+        ]
+    },
+    "new": []
+}
+Keyword_string = json.dumps(Keywords_json,indent=4)
+Keyword_prompt = "You should only use the following keyword. If the keywords are insufficient to describe the exercise, You may include new keywords that are percise and can be reused on multiple exercises. You should remember all the keywords, old and new, and ensure there's no duplication. After all images have been generated, If you include new keywords, you must return a JSON file named newkeywords.json which contains a section of new and old keywords."
+
+JSON_prompt = JSON_instruction+JSON_string+Keyword_prompt+Keyword_string
 print(JSON_prompt)
 # 1. Convert image to bytes (for API or model input)
 def load_image_as_bytes(image_path):
