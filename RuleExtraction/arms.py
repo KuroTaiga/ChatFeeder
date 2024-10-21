@@ -1,190 +1,115 @@
-# arms.py
+from helper import *
 
-from constants import STRAIGHT, CLOSE, SPREAD, ARM_KEYS, OUTWARD, INWARD, FLEXED, BENT_RANGE
-from helper import calculate_angle, calculate_distance, get_empty_arm_position,get_empty_arm_motion,get_arm_landmarks
-def determine_arm_position_rule(joint_positions: dict) -> dict:
-    """
-    Generate position rules for arms (hand and elbow) based on joint positions.
-    :param joint_positions: The dictionary of joint positions from pose detection.
-    :return: A dictionary of arm landmarks with positions.
-    """
-    arm_rules = {
-        "left_elbow": {"position": []},
-        "right_elbow": {"position": []},
-        "left_hand": {"position": []},
-        "right_hand": {"position": []}
-    }
+class ArmRules:
+    def __init__(self):
+        self.previous_left_elbow = None
+        self.previous_right_elbow = None
+        self.previous_left_hand = None
+        self.previous_right_hand = None
+        self.previous_left_shoulder = None
+        self.previous_right_shoulder = None
 
-    left_hand = joint_positions.get('left_hand', {'x': None, 'y': None})
-    right_hand = joint_positions.get('right_hand', {'x': None, 'y': None})
-    left_elbow = joint_positions.get('left_elbow', {'x': None, 'y': None})
-    right_elbow = joint_positions.get('right_elbow', {'x': None, 'y': None})
-    left_shoulder = joint_positions.get('left_shoulder', {'x': None, 'y': None})
-    right_shoulder = joint_positions.get('right_shoulder', {'x': None, 'y': None})
-    torso = joint_positions.get('torso', {'x': None, 'y': None})  # Use for relative position checks
+    def extract_arm_rules(self, landmarks):
+        # Get empty arm position dictionary
+        arm_positions = get_empty_arm_position()
 
-    # Hand position rules
-    if left_hand['x'] and left_hand['y']:
-        if left_hand['y'] < left_shoulder['y']:
-            arm_rules["left_hand"]["position"].append("vertical upward")
+        # Extract elbow and hand landmarks for both arms
+        left_elbow = landmarks.get('left_elbow', None)
+        right_elbow = landmarks.get('right_elbow', None)
+        left_hand = landmarks.get('left_hand', None)
+        right_hand = landmarks.get('right_hand', None)
+        left_shoulder = landmarks.get('left_shoulder',None)
+        right_shoulder = landmarks.get('right_shoulder',None)
+
+        # Process left elbow
+        if left_elbow:
+            arm_positions['left_elbow']['position'] = self.get_position_state('left_elbow',landmark=landmarks)
+            if self.previous_left_elbow is not None:
+                arm_positions['left_elbow']['motion'] = self.detect_motion(self.previous_left_elbow, left_elbow)
+            self.previous_left_elbow = left_elbow
+        
+        # Process right elbow
+        if right_elbow:
+            arm_positions['right_elbow']['position'] = self.get_position_state('right_elbow',landmarks)
+            if self.previous_right_elbow is not None:
+                arm_positions['right_elbow']['motion'] = self.detect_motion(self.previous_right_elbow, right_elbow)
+            self.previous_right_elbow = right_elbow
+
+        # Process left hand
+        if left_hand:
+            arm_positions['left_hand']['position'] = self.get_position_state('left_hand',landmarks)
+            if self.previous_left_hand is not None:
+                arm_positions['left_hand']['motion'] = self.detect_motion(self.previous_left_hand, left_hand)
+            self.previous_left_hand = left_hand
+
+        # Process right hand
+        if right_hand:
+            arm_positions['right_hand']['position'] = self.get_position_state('right_hand',landmarks)
+            if self.previous_right_hand is not None:
+                arm_positions['right_hand']['motion'] = self.detect_motion(self.previous_right_hand, right_hand)
+            self.previous_right_hand = right_hand
+
+        self.previous_right_shoulder = right_shoulder
+        self.previous_left_shoulder = left_shoulder
+        return arm_positions
+
+    def get_position_state(self, keyword, landmarks, eqpt_center_list):
+        """
+        Determine the position for a given landmark (keyword)
+        """
+        results = []
+        side, joint= keyword.split('_')
+        match joint:
+            case "elbow":
+                #close to torso, flexed, extended, slightly flexed, slightly extended, bent at 90 degrees
+                elbow_angle = calculate_angle(landmarks[f'{side}_shoulder'],landmarks[f'{side}_elbow'],landmarks[f'{side}_shoulder'])
+                elbow_shoulder_dif = landmarks[f'{side}_elbow'] - landmarks[f'{side}_shoulder'] #elbow - shoulder, be careful when used for different sides of the body
+                if 0.1 > elbow_shoulder_dif[1]:
+                    results.append['close to torso']
+
+                if elbow_angle<30:
+                    results.append['flexed']
+                elif elbow_angle<80:
+                    results.append['slightly flexed']
+                elif elbow_angle<100:
+                    results.append['bent a t 90 degrees']
+                elif elbow_angle<150:
+                    results.append['slightly extended']
+                else: 
+                    results.append['extended']
+                
+            case "hand":
+                # "holding equipment","horizontal outward","horizontal inward","vertical upward","vertical downward""vertical upward","vertical downward","over chest","over head"
+
+                return[]
+        # TODO polish this
+        if landmark['y'] > 0.5:  # Example condition
+            return ["vertical upward"]
         else:
-            arm_rules["left_hand"]["position"].append("vertical downward")
-        
-        # Check if left hand is horizontally outward from the torso
-        if abs(left_hand['x'] - left_shoulder['x']) > OUTWARD:  # Example threshold
-            arm_rules["left_hand"]["position"].append("horizontal outward")
-        elif abs(left_hand['x'] - left_shoulder['x']) < INWARD:
-            arm_rules["left_hand"]["position"].append("horizontal inward")
+            return ["horizontal inward"]
 
-        # Placeholder logic for holding equipment
-        arm_rules["left_hand"]["position"].append("holding equipment")  # Placeholder
+    def detect_motion(self, previous_dist, current_dist):
+        '''
+        Detect motion based on keyword side, remember that left side of the img is the right side of the body
 
-        # Check if hand is over chest or head
-        if torso and torso['y'] and left_hand['y'] < torso['y'] - CLOSE:
-            arm_rules["left_hand"]["position"].append("over head")
-        elif left_hand['y'] < torso['y'] + CLOSE:
-            arm_rules["left_hand"]["position"].append("over chest")
+        Parameters:
+        keyword (str): 'l' or 'r'
+        previous_dist (float,float): previous difference between landmark and shoulder
+        current_dist (float,float): current difference between landmark and shoulder
+        threshold (float): abs value in distance difference to clasify as moving
 
-    if right_hand['x'] and right_hand['y']:
-        if right_hand['y'] < right_shoulder['y']:
-            arm_rules["right_hand"]["position"].append("vertical upward")
+        Returns:
+        rule extracted for motion
+        '''
+        # 
+        # Check for motion between frames (flexion, extension)
+        dx,dy = previous_dist
+        dx_curr,dy_curr = current_dist
+
+
+        if current['y'] > previous['y']:
+            return ["extension"]
+        elif current['y'] < previous['y']:
+            return ["flexion"]
         else:
-            arm_rules["right_hand"]["position"].append("vertical downward")
-        
-        # Check if right hand is horizontally outward from the torso
-        if abs(right_hand['x'] - right_shoulder['x']) > OUTWARD:  # Example threshold
-            arm_rules["right_hand"]["position"].append("horizontal outward")
-        elif abs(right_hand['x'] - right_shoulder['x']) < INWARD:
-            arm_rules["right_hand"]["position"].append("horizontal inward")
-
-        # Placeholder logic for holding equipment
-        arm_rules["right_hand"]["position"].append("holding equipment")  # Placeholder
-
-        # Check if hand is over chest or head
-        if torso and torso['y'] and right_hand['y'] < torso['y'] - CLOSE:
-            arm_rules["right_hand"]["position"].append("over head")
-        elif right_hand['y'] < torso['y'] + CLOSE:
-            arm_rules["right_hand"]["position"].append("over chest")
-
-    # Elbow position rules
-    if all([left_shoulder['x'], left_elbow['x'], left_hand['x']]):
-        left_elbow_angle = calculate_angle(left_shoulder, left_elbow, left_hand)
-        if left_elbow_angle:
-            if left_elbow_angle < FLEXED:
-                arm_rules["left_elbow"]["position"].append("flexed")
-            elif  BENT_RANGE> abs(left_elbow_angle-FLEXED):
-                arm_rules["left_elbow"]["position"].append("bent at 90 degrees")
-            else:
-                arm_rules["left_elbow"]["position"].append("extended")
-        
-        # Check if elbow is close to torso
-        if abs(left_elbow['x'] - torso['x']) < CLOSE:  # Example threshold for closeness
-            arm_rules["left_elbow"]["position"].append("close to torso")
-
-    if all([right_shoulder['x'], right_elbow['x'], right_hand['x']]):
-        right_elbow_angle = calculate_angle(right_shoulder, right_elbow, right_hand)
-        if right_elbow_angle:
-            if right_elbow_angle < FLEXED:
-                arm_rules["right_elbow"]["position"].append("flexed")
-            elif BENT_RANGE> abs(right_elbow_angle-FLEXED):
-                arm_rules["right_elbow"]["position"].append("bent at 90 degrees")
-            else:
-                arm_rules["right_elbow"]["position"].append("extended")
-        
-        # Check if elbow is close to torso
-        if abs(right_elbow['x'] - torso['x']) < CLOSE:  # Example threshold for closeness
-            arm_rules["right_elbow"]["position"].append("close to torso")
-
-    return arm_rules
-
-
-def determine_arm_motion_rule(joint_positions_over_time: list) -> dict:
-    """
-    Generate motion rules for arms based on joint positions over time.
-    :param joint_positions_over_time: A list of joint positions across multiple frames.
-    :return: A dictionary of arm landmarks with motions.
-    """
-    arm_landmarks = get_empty_arm_motion()
-
-    # Example logic: analyze motion based on joint positions over time
-    for frame in joint_positions_over_time:
-        # Check movement between frames for arms
-        if frame['left_elbow']:
-            arm_landmarks["left_elbow"]["motion"].append("extension")  # Example condition
-
-    return arm_landmarks
-
-def old_generate_arm_rules(joint_positions:dict)->dict:
-    """
-    Generates rules related to arm positions based on joint positions.
-
-    Args:
-        joint_positions (dict): A dictionary containing the coordinates of various joints.
-
-    Returns:
-        dict: A dictionary containing detected arm-related rules.
-    """
-    # Initialize the rules dictionary with empty lists
-    rules = {key: [] for key in ARM_KEYS}
-
-    # Global check for arms spread
-    if SPREAD < abs(joint_positions['left_wrist'][0] - joint_positions['right_wrist'][0]):
-        rules['arm_position'].append('spread')
-
-    # Generate rules for each side
-    for side in ['left', 'right']:
-        side_rules = generate_side_arm_rules(joint_positions, side)
-        # Update the main rules dictionary
-        for key in side_rules:
-            if key in rules:
-                rules[key].extend(side_rules[key])
-            else:
-                rules[key] = side_rules[key]
-
-    return rules
-
-def generate_side_arm_rules(joint_positions:dict, side:str)->dict:
-    """
-    Generates side-specific arm rules.
-
-    Args:
-        joint_positions (dict): A dictionary containing the coordinates of various joints.
-        side (str): 'left' or 'right' indicating which side to analyze.
-
-    Returns:
-        dict: A dictionary containing side-specific arm rules.
-    """
-    rules = {f'{side}_arm_position': []}
-
-    elbow_x = joint_positions[f'{side}_elbow'][0]
-    shoulder_x = joint_positions[f'{side}_shoulder'][0]
-    wrist_y = joint_positions[f'{side}_wrist'][1]
-    shoulder_y = joint_positions[f'{side}_shoulder'][1]
-    elbow_y = joint_positions[f'{side}_elbow'][1]
-
-    # Check if the elbow is driving back
-    if side == 'left':
-        if elbow_x < shoulder_x:
-            rules[f'{side}_arm_position'].append('elbow_back')
-    else:  # side == 'right'
-        if elbow_x > shoulder_x:
-            rules[f'{side}_arm_position'].append('elbow_back')
-
-    # Check if the arm is raised
-    if wrist_y < shoulder_y:
-        rules[f'{side}_arm_position'].append('arm_raised')
-
-    # Check if the arm is bent
-    arm_angle = calculate_angle(
-        joint_positions[f'{side}_shoulder'],
-        joint_positions[f'{side}_elbow'],
-        joint_positions[f'{side}_wrist']
-    )
-    if abs(arm_angle - 180) > STRAIGHT:
-        rules[f'{side}_arm_position'].append('arm_bent')
-    else:
-        rules[f'{side}_arm_position'].append('arm_straight')
-
-    # Add more side-specific checks as needed
-
-    return rules
+            return ["stationary"]

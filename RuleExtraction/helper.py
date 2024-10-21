@@ -274,3 +274,25 @@ def build_rule_dict(rules):
             other_dict[activity_name] = rule.get("other",{})
     return body_landmarks_dict, equipment_dict, other_dict
 
+def is_point_in_rectangle(point, rectangle_points):
+    """
+    Check if a point is inside a rectangle defined by four points.
+    
+    :param point: A list or tuple [x, y] representing the point to check.
+    :param rectangle_points: A list of four points [[x1, y1], [x2, y2], [x3, y3], [x4, y4]] representing the rectangle.
+    :return: True if the point is inside the rectangle, False otherwise.
+    """
+    x, y = point
+    
+    # Extract x and y coordinates from the rectangle points
+    x_coords = [p[0] for p in rectangle_points]
+    y_coords = [p[1] for p in rectangle_points]
+    
+    # Get the boundaries of the rectangle
+    min_x, max_x = min(x_coords), max(x_coords)
+    min_y, max_y = min(y_coords), max(y_coords)
+    
+    # Check if the point is within the bounds of the rectangle
+    if min_x <= x <= max_x and min_y <= y <= max_y:
+        return True
+    return False

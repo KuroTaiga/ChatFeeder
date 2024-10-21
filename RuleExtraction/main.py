@@ -43,7 +43,7 @@ for video,activity in zip(video_list,target_exercise_names):
     target_equipment = target_eqp_dict[activity]
     target_other = target_other_dict[activity]
     print(target_rule)
-    curr_pose_dict,curr_equipmnet_dict,curr_other_dict = process_video(equipment_detector,pose_detector,video)
+    curr_pose_dict,curr_equipmnet_dict,curr_other_dict = process_video(equipment_detector,pose_detector,video,log_to_file=True)
     print("Detected Poses:", curr_pose_dict)
     print("Detected equipement:", curr_equipmnet_dict)
     print("Other: ", curr_other_dict)
