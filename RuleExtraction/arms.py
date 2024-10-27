@@ -80,15 +80,27 @@ class ArmRules:
                 
             case "hand":
                 # "holding equipment","horizontal outward","horizontal inward","vertical upward","vertical downward""vertical upward","vertical downward","over chest","over head"
+                horizontal_diff = hand[0] - elbow[0]
+                vertical_diff = hand[1]-elbow[1]
+                if abs(vertical_diff)>abs(horizontal_diff):
+                    # more significant vertically:
+                    if horizontal_diff>0: 
+                        results.append['vertical upward']
+                    else:
+                        results.append['vertical downward']
+                else:
+                    if (side == 'left' and horizontal_diff<0) or (side == 'right' and horizontal_diff>0):
+                        results.append['horizontal inward']
+                    else:
+                        results.append['horizontal outward']
 
-                return[]
-        # TODO polish this
-        if landmark['y'] > 0.5:  # Example condition
-            return ["vertical upward"]
-        else:
-            return ["horizontal inward"]
-
-    def detect_motion(self, previous_dist, current_dist):
+                if any(calculate_distance(hand,curr_eqpt)<0.05) for curr_eqpt in eqpt_center_list:
+                    #TODO change threshold
+                    results.append['holding equipment']
+                
+                return results
+        
+    def detect_motion(self, keyword: str, previous_dist, current_dist, threshold: float):
         '''
         Detect motion based on keyword side, remember that left side of the img is the right side of the body
 
