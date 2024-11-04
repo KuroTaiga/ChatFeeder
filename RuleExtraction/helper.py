@@ -8,47 +8,179 @@ from typing import Dict, List, Set, Tuple
 from collections import defaultdict
 import numpy as np
 
-def calculate_rule_similarity(extracted_rules: Dict, reference_rules: Dict) -> float:
+def calculate_rule_similarity(extracted_rules: dict, reference_rules: dict, 
+                            weights: dict = {
+                                'equipment': 4.0,  # 40%
+                                'position': 4.0,   # 40%
+                                'motion': 2.0      # 20%
+                            }) -> float:
     """
-    Calculate similarity score between extracted rules and reference rules.
+    Calculate similarity between extracted and reference rules with weighted components.
     
     Args:
-        extracted_rules: Rules extracted from video
-        reference_rules: Reference rules from results.json
-        
+        extracted_rules: Rules extracted from video analysis
+        reference_rules: Reference rules from exercise definitions
+        weights: Component weights (should sum to 10.0)
+    
     Returns:
         float: Similarity score between 0 and 1
     """
-    total_score = 0
-    total_weights = 0
-    
-    # Define weights for different components
-    weights = {
-        'position': 0.6,
-        'motion': 0.4
-    }
-    
-    for landmark in extracted_rules:
-        if landmark not in reference_rules:
+    total_weight = sum(weights.values())
+    if abs(total_weight - 10.0) > 0.001:
+        raise ValueError(f"Weights must sum to 10.0, got {total_weight}")
+
+    # Calculate position similarity
+    position_scores = []
+    for joint in reference_rules:
+        if joint not in extracted_rules:
             continue
             
-        for rule_type, weight in weights.items():
-            extracted_set = set(extracted_rules[landmark].get(rule_type, []))
-            reference_set = set(reference_rules[landmark].get(rule_type, []))
-            
-            if not reference_set:
-                continue
-                
-            # Calculate Jaccard similarity
-            intersection = len(extracted_set & reference_set)
-            union = len(extracted_set | reference_set)
-            
-            if union > 0:
-                similarity = intersection / union
-                total_score += similarity * weight
-                total_weights += weight
+        ref_positions = set(reference_rules[joint].get('position', []))
+        ext_positions = set(extracted_rules[joint].get('position', []))
+        
+        if ref_positions and ext_positions:
+            intersection = len(ref_positions.intersection(ext_positions))
+            union = len(ref_positions.union(ext_positions))
+            position_scores.append(intersection / union)
     
-    return total_score / total_weights if total_weights > 0 else 0
+    # Calculate motion similarity
+    motion_scores = []
+    for joint in reference_rules:
+        if joint not in extracted_rules:
+            continue
+            
+        ref_motions = set(reference_rules[joint].get('motion', []))
+        ext_motions = set(extracted_rules[joint].get('motion', []))
+        
+        if ref_motions and ext_motions:
+            intersection = len(ref_motions.intersection(ext_motions))
+            union = len(ref_motions.union(ext_motions))
+            motion_scores.append(intersection / union)
+    
+    # Calculate average scores
+    position_score = sum(position_scores) / len(position_scores) if position_scores else 0
+    motion_score = sum(motion_scores) / len(motion_scores) if motion_scores else 0
+    
+    # Calculate final weighted score
+    final_score = (
+        (position_score * weights['position'] / 10.0) +
+        (motion_score * weights['motion'] / 10.0)
+    )
+    
+    return final_score
+
+def calculate_equipment_similarity(extracted_equipment: dict, reference_equipment: dict) -> float:
+    """
+    Calculate similarity between the equipment used in extracted and reference rules.
+    
+    Args:
+        extracted_rules: Rules extracted from video analysis, containing equipment type information.
+        reference_rules: Reference rules for an exercise, containing equipment type information.
+        
+    Returns:
+        float: Equipment similarity score between 0 and 1.
+    """
+    # Extract equipment types from the rules
+    ref_equipment = set(reference_equipment.get("type", []))
+    ext_equipment = set(extracted_equipment.get("type", []))
+    
+    # Calculate intersection over union for similarity
+    if ref_equipment and ext_equipment:
+        intersection = len(ref_equipment.intersection(ext_equipment))
+        union = len(ref_equipment.union(ext_equipment))
+        equipment_score = intersection / union
+    else:
+        equipment_score = 0.0  # No similarity if either set is empty
+    
+    return equipment_score*0.4
+
+def calculate_similarity_with_details(extracted_rules: dict, reference_exercise: dict,
+                                   weights: dict = {
+                                       'equipment': 4.0,
+                                       'position': 4.0,
+                                       'motion': 2.0
+                                   }) -> tuple:
+    """
+    Calculate similarity with detailed breakdown.
+    
+    Args:
+        extracted_rules: Complete extracted rules including equipment
+        reference_exercise: Complete reference exercise rules
+        weights: Component weights
+        
+    Returns:
+        tuple: (final_score, detailed_scores)
+    """
+    # Calculate equipment similarity
+    equipment_score = 0.0
+    if 'equipment' in extracted_rules and 'equipment' in reference_exercise:
+        ext_equipment = set(extracted_rules['equipment']['type'])
+        ref_equipment = set(reference_exercise['equipment']['type'])
+        if ref_equipment and ext_equipment:
+            intersection = len(ext_equipment.intersection(ref_equipment))
+            union = len(ext_equipment.union(ref_equipment))
+            equipment_score = intersection / union
+
+    # Calculate position and motion similarities
+    position_scores = {}
+    motion_scores = {}
+    
+    for joint in reference_exercise['body_landmarks']:
+        if joint not in extracted_rules['body_landmarks']:
+            continue
+            
+        # Position similarity
+        ref_positions = set(reference_exercise['body_landmarks'][joint].get('position', []))
+        ext_positions = set(extracted_rules['body_landmarks'][joint].get('position', []))
+        
+        if ref_positions and ext_positions:
+            intersection = len(ref_positions.intersection(ext_positions))
+            union = len(ref_positions.union(ext_positions))
+            position_scores[joint] = intersection / union
+            
+        # Motion similarity
+        ref_motions = set(reference_exercise['body_landmarks'][joint].get('motion', []))
+        ext_motions = set(extracted_rules['body_landmarks'][joint].get('motion', []))
+        
+        if ref_motions and ext_motions:
+            intersection = len(ref_motions.intersection(ext_motions))
+            union = len(ref_motions.union(ext_motions))
+            motion_scores[joint] = intersection / union
+    
+    # Calculate average scores
+    avg_position = sum(position_scores.values()) / len(position_scores) if position_scores else 0
+    avg_motion = sum(motion_scores.values()) / len(motion_scores) if motion_scores else 0
+    
+    # Calculate weighted final score
+    weighted_equipment = equipment_score * weights['equipment'] / 10.0
+    weighted_position = avg_position * weights['position'] / 10.0
+    weighted_motion = avg_motion * weights['motion'] / 10.0
+    
+    final_score = weighted_equipment + weighted_position + weighted_motion
+    
+    # Prepare detailed breakdown
+    details = {
+        'equipment': {
+            'raw_score': equipment_score,
+            'weighted_score': weighted_equipment,
+            'weight': weights['equipment']
+        },
+        'position': {
+            'raw_score': avg_position,
+            'weighted_score': weighted_position,
+            'weight': weights['position'],
+            'joint_scores': position_scores
+        },
+        'motion': {
+            'raw_score': avg_motion,
+            'weighted_score': weighted_motion,
+            'weight': weights['motion'],
+            'joint_scores': motion_scores
+        },
+        'final_score': final_score
+    }
+    
+    return final_score, details
 
 def find_matching_activities(extracted_rules: Dict, results_json: Dict, top_n: int = 3) -> List[Tuple[str, float]]:
     """

@@ -136,11 +136,10 @@ def compare_with_reference_exercises(extracted_rules: Dict, reference_json: str,
         reference_data = json.load(f)
     
     matches = []
-    for exercise in reference_data['exercises']:
-        similarity = calculate_rule_similarity(
-            extracted_rules['body_landmarks'],
-            exercise['body_landmarks']
-        )
-        matches.append((exercise['activity'], similarity))
+    detailed_matches = {}
     
+    for exercise in reference_data:
+        score, details = calculate_similarity_with_details(extracted_rules, exercise)
+        matches.append((exercise['activity'], score))
+        detailed_matches[exercise['activity']] = details
     return sorted(matches, key=lambda x: x[1], reverse=True)[:top_n]
