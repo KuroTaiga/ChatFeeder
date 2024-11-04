@@ -1,127 +1,178 @@
 from helper import *
+import numpy as np
+from typing import Dict, List, Tuple
 
 class ArmRules:
     def __init__(self):
-        self.previous_left_elbow = None
-        self.previous_right_elbow = None
-        self.previous_left_hand = None
-        self.previous_right_hand = None
-        self.previous_left_shoulder = None
-        self.previous_right_shoulder = None
-
-    def extract_arm_rules(self, landmarks):
-        # Get empty arm position dictionary
-        arm_positions = get_empty_arm_position()
-
-        # Extract elbow and hand landmarks for both arms
-        left_elbow = landmarks.get('left_elbow', None)
-        right_elbow = landmarks.get('right_elbow', None)
-        left_hand = landmarks.get('left_hand', None)
-        right_hand = landmarks.get('right_hand', None)
-        left_shoulder = landmarks.get('left_shoulder',None)
-        right_shoulder = landmarks.get('right_shoulder',None)
-
-        # Process left elbow
-        if left_elbow:
-            arm_positions['left_elbow']['position'] = self.get_position_state('left_elbow',landmark=landmarks)
-            if self.previous_left_elbow is not None:
-                arm_positions['left_elbow']['motion'] = self.detect_motion(self.previous_left_elbow, left_elbow)
-            self.previous_left_elbow = left_elbow
+        """Initialize arm rule extraction with previous state tracking."""
+        self.previous_landmarks = {
+            'left_elbow': None,
+            'right_elbow': None,
+            'left_hand': None,
+            'right_hand': None,
+            'left_shoulder': None,
+            'right_shoulder': None
+        }
         
-        # Process right elbow
-        if right_elbow:
-            arm_positions['right_elbow']['position'] = self.get_position_state('right_elbow',landmarks)
-            if self.previous_right_elbow is not None:
-                arm_positions['right_elbow']['motion'] = self.detect_motion(self.previous_right_elbow, right_elbow)
-            self.previous_right_elbow = right_elbow
+        # Define position thresholds
+        self.VERTICAL_THRESHOLD = 0.2
+        self.HORIZONTAL_THRESHOLD = 0.2
+        self.TORSO_PROXIMITY = 0.1
+        self.EQUIPMENT_HOLD_THRESHOLD = 0.05
+        
+        # Define angle thresholds
+        self.EXTENSION_ANGLE = 150  # Nearly straight arm
+        self.FLEXION_ANGLE = 30    # Highly bent arm
+        self.SLIGHT_FLEX_ANGLE = 80  # Slightly bent arm
+        self.NINETY_DEG_RANGE = (80, 100)  # Range for "bent at 90 degrees"
 
-        # Process left hand
-        if left_hand:
-            arm_positions['left_hand']['position'] = self.get_position_state('left_hand',landmarks)
-            if self.previous_left_hand is not None:
-                arm_positions['left_hand']['motion'] = self.detect_motion(self.previous_left_hand, left_hand)
-            self.previous_left_hand = left_hand
-
-        # Process right hand
-        if right_hand:
-            arm_positions['right_hand']['position'] = self.get_position_state('right_hand',landmarks)
-            if self.previous_right_hand is not None:
-                arm_positions['right_hand']['motion'] = self.detect_motion(self.previous_right_hand, right_hand)
-            self.previous_right_hand = right_hand
-
-        self.previous_right_shoulder = right_shoulder
-        self.previous_left_shoulder = left_shoulder
+    def extract_arm_rules(self, landmarks: Dict[str, Tuple[float, float]], equipment_centers: List[Tuple[float, float]] = None) -> Dict[str, Dict[str, List[str]]]:
+        """
+        Extract comprehensive arm position and motion rules.
+        
+        Args:
+            landmarks: Dictionary of landmark coordinates
+            equipment_centers: Optional list of equipment center points
+            
+        Returns:
+            Dictionary containing arm position and motion rules
+        """
+        arm_positions = get_empty_arm_position()
+        
+        # Process each arm component
+        for side in ['left', 'right']:
+            # Get current landmarks
+            elbow = landmarks.get(f'{side}_elbow')
+            hand = landmarks.get(f'{side}_hand')
+            shoulder = landmarks.get(f'{side}_shoulder')
+            
+            if all(x is not None for x in [elbow, hand, shoulder]):
+                # Get positions
+                arm_positions[f'{side}_elbow']['position'] = self._get_elbow_position(
+                    shoulder, elbow, hand, side)
+                arm_positions[f'{side}_hand']['position'] = self._get_hand_position(
+                    shoulder, elbow, hand, equipment_centers)
+                
+                # Get motions if we have previous landmarks
+                prev_elbow = self.previous_landmarks[f'{side}_elbow']
+                prev_hand = self.previous_landmarks[f'{side}_hand']
+                
+                if prev_elbow is not None:
+                    arm_positions[f'{side}_elbow']['motion'] = self._detect_motion(
+                        prev_elbow, elbow, shoulder)
+                if prev_hand is not None:
+                    arm_positions[f'{side}_hand']['motion'] = self._detect_motion(
+                        prev_hand, hand, shoulder)
+                
+                # Update previous landmarks
+                self.previous_landmarks[f'{side}_elbow'] = elbow
+                self.previous_landmarks[f'{side}_hand'] = hand
+                self.previous_landmarks[f'{side}_shoulder'] = shoulder
+        
         return arm_positions
 
-    def get_position_state(self, keyword, landmarks, eqpt_center_list):
-        """
-        Determine the position for a given landmark (keyword)
-        """
-        results = []
-        side, joint= keyword.split('_')
-        match joint:
-            case "elbow":
-                #close to torso, flexed, extended, slightly flexed, slightly extended, bent at 90 degrees
-                elbow_angle = calculate_angle(landmarks[f'{side}_shoulder'],landmarks[f'{side}_elbow'],landmarks[f'{side}_shoulder'])
-                elbow_shoulder_dif = landmarks[f'{side}_elbow'] - landmarks[f'{side}_shoulder'] #elbow - shoulder, be careful when used for different sides of the body
-                if 0.1 > elbow_shoulder_dif[1]:
-                    results.append['close to torso']
-
-                if elbow_angle<30:
-                    results.append['flexed']
-                elif elbow_angle<80:
-                    results.append['slightly flexed']
-                elif elbow_angle<100:
-                    results.append['bent a t 90 degrees']
-                elif elbow_angle<150:
-                    results.append['slightly extended']
-                else: 
-                    results.append['extended']
-                
-            case "hand":
-                # "holding equipment","horizontal outward","horizontal inward","vertical upward","vertical downward""vertical upward","vertical downward","over chest","over head"
-                horizontal_diff = hand[0] - elbow[0]
-                vertical_diff = hand[1]-elbow[1]
-                if abs(vertical_diff)>abs(horizontal_diff):
-                    # more significant vertically:
-                    if horizontal_diff>0: 
-                        results.append['vertical upward']
-                    else:
-                        results.append['vertical downward']
-                else:
-                    if (side == 'left' and horizontal_diff<0) or (side == 'right' and horizontal_diff>0):
-                        results.append['horizontal inward']
-                    else:
-                        results.append['horizontal outward']
-
-                if any(calculate_distance(hand,curr_eqpt)<0.05) for curr_eqpt in eqpt_center_list:
-                    #TODO change threshold
-                    results.append['holding equipment']
-                
-                return results
+    def _get_elbow_position(self, shoulder: Tuple[float, float], elbow: Tuple[float, float], 
+                          hand: Tuple[float, float], side: str) -> List[str]:
+        """Determine elbow position state."""
+        positions = []
         
-    def detect_motion(self, keyword: str, previous_dist, current_dist, threshold: float):
-        '''
-        Detect motion based on keyword side, remember that left side of the img is the right side of the body
-
-        Parameters:
-        keyword (str): 'l' or 'r'
-        previous_dist (float,float): previous difference between landmark and shoulder
-        current_dist (float,float): current difference between landmark and shoulder
-        threshold (float): abs value in distance difference to clasify as moving
-
-        Returns:
-        rule extracted for motion
-        '''
-        # 
-        # Check for motion between frames (flexion, extension)
-        dx,dy = previous_dist
-        dx_curr,dy_curr = current_dist
-
-
-        if current['y'] > previous['y']:
-            return ["extension"]
-        elif current['y'] < previous['y']:
-            return ["flexion"]
+        # Calculate angle
+        angle = calculate_angle(shoulder, elbow, hand)
+        
+        # Check proximity to torso
+        shoulder_elbow_diff = np.array(elbow) - np.array(shoulder)
+        if abs(shoulder_elbow_diff[0]) < self.TORSO_PROXIMITY:
+            positions.append('close to torso')
+            
+        # Determine flexion state
+        if angle < self.FLEXION_ANGLE:
+            positions.append('flexed')
+        elif angle < self.SLIGHT_FLEX_ANGLE:
+            positions.append('slightly flexed')
+        elif self.NINETY_DEG_RANGE[0] <= angle <= self.NINETY_DEG_RANGE[1]:
+            positions.append('bent at 90 degrees')
+        elif angle < self.EXTENSION_ANGLE:
+            positions.append('slightly extended')
         else:
-            return ["stationary"]
+            positions.append('extended')
+            
+        return positions
+
+    def _get_hand_position(self, shoulder: Tuple[float, float], elbow: Tuple[float, float],
+                          hand: Tuple[float, float], equipment_centers: List[Tuple[float, float]] = None) -> List[str]:
+        """Determine hand position state."""
+        positions = []
+        
+        # Calculate relative positions
+        hand_elbow_diff = np.array(hand) - np.array(elbow)
+        
+        # Determine vertical/horizontal orientation
+        if abs(hand_elbow_diff[1]) > abs(hand_elbow_diff[0]):
+            # More vertical movement
+            if hand_elbow_diff[1] < 0:
+                positions.append('vertical upward')
+            else:
+                positions.append('vertical downward')
+        else:
+            # More horizontal movement
+            if hand_elbow_diff[0] > 0:
+                positions.append('horizontal outward')
+            else:
+                positions.append('horizontal inward')
+        
+        # Check chest/head position
+        shoulder_hand_diff = np.array(hand) - np.array(shoulder)
+        if shoulder_hand_diff[1] < -self.VERTICAL_THRESHOLD:
+            positions.append('over head')
+        elif abs(shoulder_hand_diff[0]) < self.HORIZONTAL_THRESHOLD:
+            positions.append('over chest')
+            
+        # Check equipment holding
+        if equipment_centers:
+            for center in equipment_centers:
+                if calculate_distance(hand, center) < self.EQUIPMENT_HOLD_THRESHOLD:
+                    positions.append('holding equipment')
+                    break
+                    
+        return positions
+
+    def _detect_motion(self, prev_pos: Tuple[float, float], curr_pos: Tuple[float, float], 
+                      shoulder: Tuple[float, float]) -> List[str]:
+        """Detect motion patterns between frames."""
+        motions = []
+        
+        # Calculate movement vectors
+        movement = np.array(curr_pos) - np.array(prev_pos)
+        relative_to_shoulder = np.array(curr_pos) - np.array(shoulder)
+        
+        # Vertical movements
+        if abs(movement[1]) > self.VERTICAL_THRESHOLD:
+            if movement[1] < 0:
+                motions.append('vertical upward')
+            else:
+                motions.append('vertical downward')
+                
+        # Horizontal movements
+        if abs(movement[0]) > self.HORIZONTAL_THRESHOLD:
+            if movement[0] > 0:
+                motions.append('horizontal outward')
+            else:
+                motions.append('horizontal inward')
+                
+        # Check for rowing motion
+        if (movement[1] > self.VERTICAL_THRESHOLD and 
+            abs(movement[0]) > self.HORIZONTAL_THRESHOLD):
+            motions.append('row')
+            
+        # Check for flexion/extension
+        if abs(movement[1]) < self.VERTICAL_THRESHOLD:
+            if movement[0] < 0:
+                motions.append('flexion')
+            else:
+                motions.append('extension')
+                
+        # If no significant movement detected
+        if not motions:
+            motions.append('stationary')
+            
+        return motions

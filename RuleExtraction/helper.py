@@ -4,6 +4,106 @@ import mediapipe as mp
 import math
 import cv2
 from typing import Tuple
+from typing import Dict, List, Set, Tuple
+from collections import defaultdict
+import numpy as np
+
+def calculate_rule_similarity(extracted_rules: Dict, reference_rules: Dict) -> float:
+    """
+    Calculate similarity score between extracted rules and reference rules.
+    
+    Args:
+        extracted_rules: Rules extracted from video
+        reference_rules: Reference rules from results.json
+        
+    Returns:
+        float: Similarity score between 0 and 1
+    """
+    total_score = 0
+    total_weights = 0
+    
+    # Define weights for different components
+    weights = {
+        'position': 0.6,
+        'motion': 0.4
+    }
+    
+    for landmark in extracted_rules:
+        if landmark not in reference_rules:
+            continue
+            
+        for rule_type, weight in weights.items():
+            extracted_set = set(extracted_rules[landmark].get(rule_type, []))
+            reference_set = set(reference_rules[landmark].get(rule_type, []))
+            
+            if not reference_set:
+                continue
+                
+            # Calculate Jaccard similarity
+            intersection = len(extracted_set & reference_set)
+            union = len(extracted_set | reference_set)
+            
+            if union > 0:
+                similarity = intersection / union
+                total_score += similarity * weight
+                total_weights += weight
+    
+    return total_score / total_weights if total_weights > 0 else 0
+
+def find_matching_activities(extracted_rules: Dict, results_json: Dict, top_n: int = 3) -> List[Tuple[str, float]]:
+    """
+    Find the top N matching activities from results.json.
+    
+    Args:
+        extracted_rules: Rules extracted from video
+        results_json: Complete results.json data
+        top_n: Number of top matches to return
+        
+    Returns:
+        List of tuples containing (activity_name, similarity_score)
+    """
+    scores = []
+    
+    for exercise in results_json['exercises']:
+        activity_name = exercise['activity']
+        reference_rules = exercise['body_landmarks']
+        
+        similarity = calculate_rule_similarity(extracted_rules, reference_rules)
+        scores.append((activity_name, similarity))
+    
+    # Sort by similarity score and return top N
+    return sorted(scores, key=lambda x: x[1], reverse=True)[:top_n]
+
+def format_extracted_rules(arm_rules: Dict, leg_rules: Dict, torso_rules: Dict, 
+                         equipment_detected: List[str]) -> Dict:
+    """
+    Format extracted rules to match results.json structure.
+    
+    Args:
+        arm_rules: Rules extracted for arms
+        leg_rules: Rules extracted for legs
+        torso_rules: Rules extracted for torso
+        equipment_detected: List of detected equipment
+        
+    Returns:
+        Dictionary formatted like results.json entries
+    """
+    formatted_rules = {
+        'body_landmarks': {},
+        'equipment': {
+            'type': equipment_detected
+        },
+        'other': {
+            'mirrored': 'true'  # Default value, could be determined by analysis
+        }
+    }
+    
+    # Combine all rules
+    formatted_rules['body_landmarks'].update(arm_rules)
+    formatted_rules['body_landmarks'].update(leg_rules)
+    formatted_rules['body_landmarks'].update(torso_rules)
+    
+    return formatted_rules
 
 def calculate_angle(a: Tuple[float, float], b: Tuple[float, float], c: Tuple[float, float]) -> float:
     """
