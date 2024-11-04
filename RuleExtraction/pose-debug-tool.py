@@ -1,5 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
+import tkinter as tk
+from tkinter import ttk
 import cv2
 import os
 import mediapipe as mp
@@ -14,8 +16,10 @@ class EnhancedPoseDebugTool:
                  custom_model: str = "../custom_model", model_path: str = "./assets/best-v2.pt"):
         """
         Initialize the enhanced debug tool with GUI controls
+        Initialize the enhanced debug tool with GUI controls
         
         Args:
+            video_folder (str): Path to folder containing video files
             video_folder (str): Path to folder containing video files
         """
         self.root = tk.Tk()
@@ -260,10 +264,35 @@ class EnhancedPoseDebugTool:
         
         if results.pose_landmarks:
             # Draw all landmarks and connections in gray
+            # Draw all landmarks and connections in gray
             self.mp_drawing.draw_landmarks(
                 landmark_frame,
                 results.pose_landmarks,
                 self.mp_pose.POSE_CONNECTIONS,
+                self.mp_drawing.DrawingSpec(color=(128, 128, 128), thickness=2, circle_radius=2),
+                self.mp_drawing.DrawingSpec(color=(128, 128, 128), thickness=2)
+            )
+            
+            # Highlight selected landmarks in red and add labels
+            for idx in self.selected_landmarks:
+                landmark = results.pose_landmarks.landmark[idx]
+                pos = (int(landmark.x * w), int(landmark.y * h))
+                
+                # Draw larger red circle for selected landmark
+                cv2.circle(landmark_frame, pos, 5, (0, 0, 255), -1)
+                
+                # Add landmark name as label
+                label = self.landmark_names[idx]
+                cv2.putText(
+                    landmark_frame,
+                    label,
+                    (pos[0] + 10, pos[1] + 10),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.5,
+                    (0, 0, 255),
+                    1
+                )
+                
                 self.mp_drawing.DrawingSpec(color=(128, 128, 128), thickness=2, circle_radius=2),
                 self.mp_drawing.DrawingSpec(color=(128, 128, 128), thickness=2)
             )
@@ -537,6 +566,10 @@ class EnhancedPoseDebugTool:
             model.close()
 
 if __name__ == "__main__":
+    video_folder = "../real_video"  # Update this path as needed
+    blender_folder= "../blender_video"
+    app = EnhancedPoseDebugTool(video_folder,blender_folder)
+    app.run()
     video_folder = "../real_video"  # Update this path as needed
     blender_folder= "../blender_video"
     app = EnhancedPoseDebugTool(video_folder,blender_folder)
