@@ -1,94 +1,204 @@
-# main.py
-import sys
-sys.path.insert(0, './yolov7')
-#sys.path.insert(0, './RuleExtraction/yolov7')
-from helper import  *
-from constants import *
-from exercise_rules import *
-from process_video import process_video
-from GYMDetector import YOLOv7EquipmentDetector,PoseDetector
-import os
+from exercise_analyzer import process_video_with_rules
+from GYMDetector import YOLOv7EquipmentDetector, PoseDetector
+from helper import get_video_path, calculate_rule_similarity, calculate_similarity_with_details, calculate_equipment_similarity
+from constants import EQUIPMENTS
+from exercise_rules import build_exercise_rules_json, get_exercise_names
+import pandas as pd
 import json
+import os
 
+def detect_equipment_from_filename(filename: str) -> list:
+    """Extract equipment type from filename."""
+    filename = filename.lower()
+    equipment_found = []
+    for eqpt in EQUIPMENTS:
+        if eqpt in filename:
+            equipment_found.append(eqpt)  # Fixed to append actual equipment name
+    return equipment_found if equipment_found else ['none']
 
-def compare_joint_positions(
-    actual_rules: dict,
-    expected_rules: dict
-) -> float:
-    matched = calculate_match(actual_rules,expected_rules)
-    return matched
-
-# def main():
-video_root_dir = "../blender_mp4/"
-#model_path = "home/bizon/dong/yolov7/best-v2.pt"
-model_path = "./assets/best-v2.pt"
-
-equipment_detector = YOLOv7EquipmentDetector(model_path, EQUIPMENTS)
-pose_detector = PoseDetector()
-
-exercises_rules = build_exercise_rules_json()
-exercises_names = get_exercise_names(exercises_rules)
-rules_dict, equipment_dict, other_dict = build_rule_dict(exercises_rules)
-
-video_list,target_exercise_names = get_video_path(video_root_dir,exercises_names)
-target_rules_dict, target_eqp_dict, target_other_dict = get_sub_rules_for_activities(target_exercise_names,rules_dict, equipment_dict, other_dict)
-results = []
-
-video_count =0
-for video,activity in zip(video_list,target_exercise_names):
-    video_count+=1
-    print(f"Processing video #{video_count}: {video}")
-    target_rule = target_rules_dict[activity]
+def analyze_video(video_path: str, 
+                 equipment_detector: YOLOv7EquipmentDetector,
+                 pose_detector: PoseDetector,
+                 exercise_rules: list,
+                 expected_activity: str):
+    """
+    Analyze a single video using debug_main's working logic with added reporting.
+    """
+    # Get video name and equipment
+    video_name = os.path.splitext(os.path.basename(video_path))[0].lower()
+    detected_equipment = detect_equipment_from_filename(video_name)
     
-    target_equipment = target_eqp_dict[activity]
-    target_other = target_other_dict[activity]
-    print(target_rule)
-    curr_pose_dict,curr_equipmnet_dict,curr_other_dict = process_video(equipment_detector,pose_detector,video)
-    print("Detected Poses:", curr_pose_dict)
-    print("Detected equipement:", curr_equipmnet_dict)
-    print("Other: ", curr_other_dict)
+    print(f"\n{'='*80}\nAnalyzing video: {video_name}\n{'='*80}\n")
+    
+    # Process video and extract rules
+    print("Extracting rules from video...")
+    extracted_rules = process_video_with_rules(
+        video_path, 
+        equipment_detector, 
+        pose_detector
+    )
 
-# if __name__ =="__main__":
-#     main()
+    #todo: delete this after fixing equiptment detection:
+    extracted_rules['equipment'] = {'type': detected_equipment}
+    
+    # Print extracted rules
+    print("\nExtracted Rules:")
+    print(json.dumps(extracted_rules, indent=2))
+    
+    # Compare with each exercise
+    print("\nComparing with all known exercises:")
+    similarities = []
+    detailed_scores = {}
+    
+    for exercise in exercise_rules:
+        exercise_name = exercise['activity'].lower()
 
+        similarity_landmark = calculate_rule_similarity(
+            extracted_rules['body_landmarks'],
+            exercise['body_landmarks']
+        )
+        print(f"landmark: {similarity_landmark}")
+        similarity_equipment = calculate_equipment_similarity(
+            extracted_rules['equipment'],
+            exercise['equipment']
+        )
+        print(f"equipment{similarity_equipment}")
+        similarity = similarity_landmark+similarity_equipment
+        similarities.append((exercise_name, similarity))
+        print(f"\nSimilarity with {exercise_name}: {similarity:.3f}")
+        
+        # Store detailed scores
+        detailed_scores[exercise_name] = {
+            'similarity': similarity,
+            'rules_matched': True  # Add more details if needed
+        }
+    
+    # Sort and get top 3 matches
+    matches = sorted(similarities, key=lambda x: x[1], reverse=True)[:3]
+    print("\nTop 3 Matches:")
+    for i, (exercise, score) in enumerate(matches, 1):
+        print(f"{i}. {exercise}: {score:.3f}")
+    
+    return {
+        'equipment': detected_equipment,
+        'matches': matches,
+        'extracted_rules': extracted_rules,
+        'detailed_scores': detailed_scores
+    }
 
+def main():
+    # Initialize paths
+    video_root_dir = "../blender_mp4/"
+    model_path = "./assets/best-v2.pt"
+    output_dir = "./analysis_results2"
+    os.makedirs(output_dir, exist_ok=True)
 
+    # Load exercise rules
+    exercise_rules = build_exercise_rules_json()
+    exercise_names = get_exercise_names(exercise_rules)
+    print(f"Looking for these exercises: {exercise_names}")
 
-# def process_exercise(description: str,video_path) -> None:
-#     #joint_positions = get_joint_positions_from_video()  # Simulate joint position extraction
-#     joint_positions_overtime = get_joint_positions_from_video(video_path)
-#     actual_rules = {}
-#     expected_rules = parse_exercise_description(description)  # Parse expected rules from description
-#     for joint_positions in joint_positions_overtime:
-#         new_rules = generate_joint_rules(joint_positions)  # Generate rules based on actual positions
-#         for key,value in new_rules.items():
-#             if key in actual_rules:
-#                 actual_rules[key].append(value)
-#             else:
-#                 actual_rules[key] = value
-#     print("\nActual Rules:")
-#     for key, value in actual_rules.items():
-#         print(f"{key}: {value}")
+    # Initialize detectors
+    equipment_detector = YOLOv7EquipmentDetector(model_path, EQUIPMENTS)
+    pose_detector = PoseDetector()
 
-#     print("\nExpected Rules:")
-#     for key, value in expected_rules.items():
-#         print(f"{key}: {value}")
+    # Get video paths
+    video_list, target_exercise_names = get_video_path(video_root_dir, exercise_names)
+    if not video_list:
+        print("No matching videos found!")
+        return
+        
+    print(f"Found {len(video_list)} matching videos")
 
-#     matched = compare_joint_positions(actual_rules, expected_rules)
+    # Prepare report data
+    report_data = []
+    correct_in_top3 = 0
+    
+    # Process each video
+    for video_path, expected_activity in zip(video_list, target_exercise_names):
+        print(f"\nProcessing video: {expected_activity}")
+        
+        try:
+            # Analyze video
+            results = analyze_video(
+                video_path,
+                equipment_detector,
+                pose_detector,
+                exercise_rules,
+                expected_activity
+            )
+            
+            # Check if expected activity is in top 3
+            matched_exercises = [match[0].lower() for match in results['matches']]
+            is_in_top3 = expected_activity.lower() in matched_exercises
+            if is_in_top3:
+                correct_in_top3 += 1
+            
+            # Prepare row for Excel report
+            report_row = {
+                'Activity': expected_activity,
+                'Equipment': ', '.join(results['equipment']),
+                'In Top 3': is_in_top3,
+                'Rank': matched_exercises.index(expected_activity.lower()) + 1 if is_in_top3 else 'Not Found',
+                'Top Match': results['matches'][0][0],
+                'Top Match Score': f"{results['matches'][0][1]:.3f}",
+                '2nd Match': results['matches'][1][0] if len(results['matches']) > 1 else '',
+                '2nd Match Score': f"{results['matches'][1][1]:.3f}" if len(results['matches']) > 1 else '',
+                '3rd Match': results['matches'][2][0] if len(results['matches']) > 2 else '',
+                '3rd Match Score': f"{results['matches'][2][1]:.3f}" if len(results['matches']) > 2 else '',
+                'Detailed Scores': json.dumps(results['detailed_scores'], indent=2)
+            }
+            
+            report_data.append(report_row)
+            
+        except Exception as e:
+            print(f"Error processing {video_path}: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            continue
+    
+    # Create DataFrame
+    df = pd.DataFrame(report_data)
+    
+    # Add summary row
+    accuracy = correct_in_top3 / len(video_list) if video_list else 0
+    summary_row = pd.DataFrame([{
+        'Activity': 'SUMMARY',
+        'Equipment': '',
+        'In Top 3': f'{correct_in_top3}/{len(video_list)}',
+        'Rank': f'{accuracy:.2%} accuracy',
+        'Top Match': '',
+        'Top Match Score': '',
+        '2nd Match': '',
+        '2nd Match Score': '',
+        '3rd Match': '',
+        '3rd Match Score': '',
+        'Detailed Scores': ''
+    }])
+    
+    df = pd.concat([df, summary_row], ignore_index=True)
+    
+    # Save reports
+    try:
+        # Save Excel report
+        excel_path = os.path.join(output_dir, 'exercise_analysis_report.xlsx')
+        df.to_excel(excel_path, index=False)
+        print(f"Excel report saved to: {excel_path}")
+    except Exception as e:
+        print(f"Error saving Excel report: {e}")
+        # Fallback to CSV
+        csv_path = os.path.join(output_dir, 'exercise_analysis_report.csv')
+        df.to_csv(csv_path, index=False)
+        print(f"Saved report as CSV instead: {csv_path}")
+    
+    # Save detailed JSON
+    json_path = os.path.join(output_dir, 'detailed_analysis.json')
+    with open(json_path, 'w') as f:
+        json.dump(report_data, f, indent=2)
+    
+    print(f"\nAnalysis complete!")
+    print(f"Detailed JSON results saved to: {json_path}")
+    print(f"Overall accuracy: {accuracy:.2%} ({correct_in_top3}/{len(video_list)} correct in top 3)")
 
-#     if matched>MATCH_THRESHOLD:
-#         print("\nExercise performed correctly.")
-#     else:
-#             print("\nExercise performance did not match the description.")
-
-# Example usage for the specific kettlebell exercise
-# TEST_PATH = "../test_json"
-# gpt_rules = {}
-# for filename in os.listdir(TEST_PATH):
-#     base_name = os.path.splitext(filename)[0]
-#     currpath = os.path.join(TEST_PATH,filename)
-#     with open(currpath,'r') as file:
-#         data = json.load(file)
-#         gpt_rules[base_name] = data
-#     file.close()
-#print(gpt_rules)
+if __name__ == "__main__":
+    main()

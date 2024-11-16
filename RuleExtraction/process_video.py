@@ -1,135 +1,106 @@
 import cv2
-from GYMDetector import YOLOv7EquipmentDetector, PoseDetector
+import json
+import sys
+sys.path.insert(0, './yolov7')
+#sys.path.insert(0, './RuleExtraction/yolov7')
 from collections import Counter
-from torso import determine_torsal_motion_rule, determine_torsal_position_rule
-from arms import determine_arm_motion_rule,determine_arm_position_rule
-from legs import determine_leg_motion_rule,determine_leg_position_rule
-from helper import get_empty_landmarks,get_empty_motion,get_empty_position
+from GYMDetector import YOLOv7EquipmentDetector, PoseDetector
+from arms import ArmRules
+from legs import LegRules
+from torso import TorsoRules
+from helper import get_empty_landmarks
 
-def process_video(eqpt_detector: YOLOv7EquipmentDetector, pose_detector: PoseDetector, video_path: str) -> tuple:
+def process_video(eqpt_detector: YOLOv7EquipmentDetector, pose_detector: PoseDetector, video_path: str, log_to_file=False):
     """
-    Process an MP4 video and detect equipment, poses, and other mirrored attributes.
-    :param eqpt_detector: Instance of YOLOv7EquipmentDetector for equipment detection.
-    :param pose_detector: Instance of PoseDetector for pose detection.
+    Process an MP4 video, detect equipment, poses, and other attributes. Visualizes the video with overlaid pose landmarks,
+    detected equipment, and extracted rules.
+
+    :param eqpt_detector: YOLOv7EquipmentDetector for equipment detection.
+    :param pose_detector: PoseDetector for pose detection.
     :param video_path: Path to the MP4 video file.
+    :param log_to_file: Boolean to indicate if logs should be saved to a file.
     :return: Tuple of (pose_dict, equipment_dict, other_dict)
     """
     cap = cv2.VideoCapture(video_path)
     if not cap.isOpened():
         raise FileNotFoundError(f"Error: Could not open video file {video_path}")
-    
+
     frame_count = 0
     equipment_counter = Counter()
     pose_dict = get_empty_landmarks()
-    other_dict = {}
-    joint_pose_overtime = []
+    all_frames_landmarks = []
+    arm_rules = ArmRules()
+    leg_rules = LegRules()
+    torso_rules = TorsoRules()
 
     while cap.isOpened():
-        ret, frame = cap.read()  # Read each frame from the video
+        ret, frame = cap.read()
         if not ret:
-            break  # If there are no more frames, break the loop
+            break
+
+        frame_count += 1
 
         # Detect equipment in the current frame
         detected_equipment = eqpt_detector.detect_equipment(frame)
-        
-        # Detect pose and generate joint rules
-        joint_position_from_frame = pose_detector.get_joint_positions_from_frame(frame)
-        joint_pose_overtime.append(joint_position_from_frame)
-        frame_pose_rules = generate_position_rules(joint_position_from_frame)
-        for landmark in pose_dict:
-            pose_dict[landmark]["position"].extend(frame_pose_rules.get(landmark,{}).get("position",[]))
+
+        # Detect pose landmarks in the current frame
+        # joint_position_from_frame = pose_detector.get_joint_positions_from_frame(frame)
+        # if joint_position_from_frame:
+        #     # Extract rules from detected pose
+        #     arm_data = arm_rules.extract_arm_rules(joint_position_from_frame)
+        #     leg_data = leg_rules.extract_leg_rules(joint_position_from_frame)
+        #     torso_data = torso_rules.extract_torso_rules(joint_position_from_frame)
+
+        #     # Prepare frame data for logging
+        #     frame_pose_data = {
+        #         'arms': arm_data,
+        #         'legs': leg_data,
+        #         'torso': torso_data
+        #     }
+
+        #     all_frames_landmarks.append({
+        #         'frame': frame_count,
+        #         'pose_landmarks': frame_pose_data,
+        #         'detected_equipment': detected_equipment
+        #     })
+
+        #     # Visualize: Draw pose landmarks and equipment on the frame
+        #     visualize_pose_landmarks(frame, joint_position_from_frame)
+        #     visualize_equipment(frame, detected_equipment)
+
+        #     # Display the frame with overlay
+        #     cv2.imshow("Video with Pose and Equipment Detection", frame)
+
+        #     # Optionally log extracted rules to console
+        #     print(f"Frame {frame_count} - Detected Equipment: {detected_equipment}")
+        #     print(f"Extracted Rules: {frame_pose_data}")
+
         # Update the equipment counter with detected equipment from this frame
         equipment_counter.update(detected_equipment)
 
-        frame_count += 1
-    video_motion_rules = generate_motion_rules(joint_pose_overtime)
-    for landmark in pose_dict:
-        pose_dict[landmark]["motion"].extend(video_motion_rules.get(landmark, {}).get("motion", []))
-    # Release the video capture object
+        if cv2.waitKey(10) & 0xFF == ord('q'):  # Press 'q' to exit
+            break
+
     cap.release()
+    cv2.destroyAllWindows()
 
-    # Get the top 3 most detected equipment by count
-    top_3_equipment = equipment_counter.most_common(3)
+    # Optionally save the landmarks and equipment detection logs to a file
+    if log_to_file:
+        with open('pose_and_equipment_log.json', 'w') as f:
+            json.dump(all_frames_landmarks, f, indent=4)
 
-    # Format the top 3 equipment into the desired dictionary format
-    equipment_dict = {
-        "equipment": {
-            "type": [item for item, _ in top_3_equipment],
-            "bench incline": []
-        }
-    }
+    return pose_dict, equipment_counter, {}
 
-    # Check if "bench" is in the top detected equipment, and add incline if needed
-    if "bench" in equipment_dict["equipment"]["type"]:
-        # Placeholder for bench incline detection, needs further development.
-        equipment_dict["equipment"]["bench incline"] = ["45"]  # Example incline
+def visualize_pose_landmarks(frame, pose_landmarks):
+    """ Draws pose landmarks on the frame. """
+    for landmark, position in pose_landmarks.items():
+        x = int(position['x'] * frame.shape[1])
+        y = int(position['y'] * frame.shape[0])
+        cv2.circle(frame, (x, y), 5, (0, 255, 0), -1)
 
-    # Populate other_dict with mirrored attribute
-    other_dict = {
-        "other": {
-            "mirrored": "true"  # Placeholder for mirrored status, can be dynamically updated
-        }
-    }
+def visualize_equipment(frame, equipment):
+    """ Display detected equipment names on the frame. """
+    text = "Detected Equipment: " + ', '.join(equipment)
+    cv2.putText(frame, text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 0), 2, cv2.LINE_AA)
 
-    return pose_dict, equipment_dict, other_dict
-
-
-def generate_position_rules(joint_positions: dict) -> dict:
-    """
-    Generate position rules based on joint positions from the current frame.
-    :param joint_positions: The dictionary of joint positions from pose detection.
-    :return: A dictionary of body landmarks with positions for each body part.
-    """
-    # Initialize the body landmarks dictionary with empty lists for positions
-    body_landmarks = get_empty_position()
-
-    # Get position rules from each module
-    torso_position = determine_torsal_position_rule(joint_positions)
-    arm_position = determine_arm_position_rule(joint_positions)
-    leg_position = determine_leg_position_rule(joint_positions)
-
-    # List of all position rule dictionaries
-    all_position_rules = [torso_position, arm_position, leg_position]
-
-    # Merge the position rules
-    for rule_dict in all_position_rules:
-        for landmark, values in rule_dict.items():
-            if landmark in body_landmarks:
-                body_landmarks[landmark]["position"].extend(values.get("position", []))
-
-    # Remove duplicates from the 'position' lists
-    for landmark in body_landmarks:
-        body_landmarks[landmark]["position"] = list(set(body_landmarks[landmark]["position"]))
-
-    return body_landmarks
-
-
-def generate_motion_rules(joint_positions_over_time: list) -> dict:
-    """
-    Generate motion rules based on joint positions from multiple frames.
-    :param joint_positions_over_time: A list of joint positions across multiple frames.
-    :return: A dictionary of body landmarks with motions for each body part.
-    """
-    # Initialize the body landmarks dictionary with empty lists for motions
-    body_landmarks = get_empty_motion()
-
-    # Get motion rules from each module
-    torso_motion = determine_torsal_motion_rule(joint_positions_over_time)
-    arm_motion = determine_arm_motion_rule(joint_positions_over_time)
-    leg_motion = determine_leg_motion_rule(joint_positions_over_time)
-
-    # List of all motion rule dictionaries
-    all_motion_rules = [torso_motion, arm_motion, leg_motion]
-
-    # Merge the motion rules
-    for rule_dict in all_motion_rules:
-        for landmark, values in rule_dict.items():
-            if landmark in body_landmarks:
-                body_landmarks[landmark]["motion"].extend(values.get("motion", []))
-
-    # Remove duplicates from the 'motion' lists
-    for landmark in body_landmarks:
-        body_landmarks[landmark]["motion"] = list(set(body_landmarks[landmark]["motion"]))
-
-    return body_landmarks
 
