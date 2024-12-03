@@ -1,185 +1,148 @@
-import warnings
-from dataclasses import dataclass
-from pathlib import Path
-from typing import Optional, Tuple
+# Installation steps for 4D-Humans:
+"""
+1. Clone the repository:
+git clone https://github.com/shubham-goel/4D-Humans.git
+cd 4D-Humans
 
-import os
-import hydra
+2. Create conda environment and install dependencies:
+conda create -n 4dhumans python=3.8
+conda activate 4dhumans
+
+# Install PyTorch with CUDA (adjust cuda version as needed)
+conda install pytorch torchvision cudatoolkit=11.3 -c pytorch
+
+# Install other dependencies
+pip install -r requirements.txt
+
+3. Download pre-trained models:
+# Create a directory for pretrained models
+mkdir pretrained_models
+cd pretrained_models
+
+# Download from the project's Google Drive:
+# - SMPL model files (SMPL_MALE.pkl, SMPL_FEMALE.pkl, SMPL_NEUTRAL.pkl)
+# - Pretrained model weights
+# Place them in the pretrained_models directory
+
+4. Install SMPL:
+# Clone SMPL repository
+git clone https://github.com/vchoutas/smplx.git
+cd smplx
+pip install -e .
+"""
+
+import sys
+import cv2
 import torch
 import numpy as np
-from hydra.core.config_store import ConfigStore
-from omegaconf import DictConfig
+from pathlib import Path
+from utils.geometry import perspective_projection
+from models.hmr import HMR
+from utils.imutils import crop
 
-from phalp.configs.base import FullConfig
-from phalp.models.hmar.hmr import HMR2018Predictor
-from phalp.trackers.PHALP import PHALP
-from phalp.utils import get_pylogger
-from phalp.configs.base import CACHE_DIR
+class FourDHumansTest:
+    def __init__(self):
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.model = self.setup_model()
+        
+    def setup_model(self):
+        model = HMR(pretrained=True)
+        checkpoint = torch.load('pretrained_models/checkpoint.pt', map_location=self.device)
+        model.load_state_dict(checkpoint['model'])
+        model.eval()
+        return model.to(self.device)
+        
+    def process_frame(self, frame):
+        # Prepare input
+        img = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        
+        # Detect person and crop
+        # Note: You might want to use a person detector here
+        # For testing, we'll use the whole frame
+        center = np.array([frame.shape[1]//2, frame.shape[0]//2])
+        scale = min(frame.shape[0], frame.shape[1]) / 200
+        
+        # Process image
+        img_processed = crop(img, center, scale, 
+                           [constants.IMG_RES, constants.IMG_RES])
+        
+        # Convert to tensor
+        img_tensor = torch.from_numpy(img_processed.transpose(2,0,1)).float()
+        img_tensor = img_tensor.unsqueeze(0).to(self.device)
+        
+        # Get predictions
+        with torch.no_grad():
+            pred_rotmat, pred_betas, pred_camera = self.model(img_tensor)
+            
+            # Convert rotation matrices to angles
+            pred_pose = rotation_matrix_to_angle_axis(pred_rotmat.reshape(-1, 3, 3))
+            pred_pose = pred_pose.reshape(1, -1)
+            
+            # Get SMPL vertices
+            smpl_output = self.smpl(betas=pred_betas, 
+                                  body_pose=pred_pose[:, 3:],
+                                  global_orient=pred_pose[:, :3])
+            vertices = smpl_output.vertices
+            
+            # Project 3D points to 2D
+            pred_keypoints_3d = smpl_output.joints
+            pred_keypoints_2d = perspective_projection(pred_keypoints_3d,
+                                                     pred_camera)
+            
+        return pred_keypoints_2d, vertices
 
-from HMR2_4dhuman.hmr2.datasets.utils import expand_bbox_to_aspect_ratio
-
-warnings.filterwarnings('ignore')
-
-log = get_pylogger(__name__)
-
-class HMR2Predictor(HMR2018Predictor):
-    def __init__(self, cfg) -> None:
-        super().__init__(cfg)
-        # Setup our new model
-        from hmr2.models import download_models, load_hmr2
-
-        # Download and load checkpoints
-        download_models()
-        model, _ = load_hmr2()
-
-        self.model = model
-        self.model.eval()
-
-    def forward(self, x):
-        hmar_out = self.hmar_old(x)
-        batch = {
-            'img': x[:,:3,:,:],
-            'mask': (x[:,3,:,:]).clip(0,1),
-        }
-        model_out = self.model(batch)
-        out = hmar_out | {
-            'pose_smpl': model_out['pred_smpl_params'],
-            'pred_cam': model_out['pred_cam'],
-        }
-        return out
+def test_4dhumans():
+    # Initialize model
+    model = FourDHumansTest()
     
-class HMR2023TextureSampler(HMR2Predictor):
-    def __init__(self, cfg) -> None:
-        super().__init__(cfg)
-
-        # Model's all set up. Now, load tex_bmap and tex_fmap
-        # Texture map atlas
-        bmap = np.load(os.path.join(CACHE_DIR, 'phalp/3D/bmap_256.npy'))
-        fmap = np.load(os.path.join(CACHE_DIR, 'phalp/3D/fmap_256.npy'))
-        self.register_buffer('tex_bmap', torch.tensor(bmap, dtype=torch.float))
-        self.register_buffer('tex_fmap', torch.tensor(fmap, dtype=torch.long))
-
-        self.img_size = 256         #self.cfg.MODEL.IMAGE_SIZE
-        self.focal_length = 5000.   #self.cfg.EXTRA.FOCAL_LENGTH
-
-        import neural_renderer as nr
-        self.neural_renderer = nr.Renderer(dist_coeffs=None, orig_size=self.img_size,
-                                          image_size=self.img_size,
-                                          light_intensity_ambient=1,
-                                          light_intensity_directional=0,
-                                          anti_aliasing=False)
-
-    def forward(self, x):
-        batch = {
-            'img': x[:,:3,:,:],
-            'mask': (x[:,3,:,:]).clip(0,1),
-        }
-        model_out = self.model(batch)
-
-        # from hmr2.models.prohmr_texture import unproject_uvmap_to_mesh
-
-        def unproject_uvmap_to_mesh(bmap, fmap, verts, faces):
-            # bmap:  256,256,3
-            # fmap:  256,256
-            # verts: B,V,3
-            # faces: F,3
-            valid_mask = (fmap >= 0)
-
-            fmap_flat = fmap[valid_mask]      # N
-            bmap_flat = bmap[valid_mask,:]    # N,3
-
-            face_vids = faces[fmap_flat, :]  # N,3
-            face_verts = verts[:, face_vids, :] # B,N,3,3
-
-            bs = face_verts.shape
-            map_verts = torch.einsum('bnij,ni->bnj', face_verts, bmap_flat) # B,N,3
-
-            return map_verts, valid_mask
-
-        pred_verts = model_out['pred_vertices'] + model_out['pred_cam_t'].unsqueeze(1)
-        device = pred_verts.device
-        face_tensor = torch.tensor(self.smpl.faces.astype(np.int64), dtype=torch.long, device=device)
-        map_verts, valid_mask = unproject_uvmap_to_mesh(self.tex_bmap, self.tex_fmap, pred_verts, face_tensor) # B,N,3
-
-        # Project map_verts to image using K,R,t
-        # map_verts_view = einsum('bij,bnj->bni', R, map_verts) + t # R=I t=0
-        focal = self.focal_length / (self.img_size / 2)
-        map_verts_proj = focal * map_verts[:, :, :2] / map_verts[:, :, 2:3] # B,N,2
-        map_verts_depth = map_verts[:, :, 2] # B,N
-
-        # Render Depth. Annoying but we need to create this
-        K = torch.eye(3, device=device)
-        K[0, 0] = K[1, 1] = self.focal_length
-        K[1, 2] = K[0, 2] = self.img_size / 2  # Because the neural renderer only support squared images
-        K = K.unsqueeze(0)
-        R = torch.eye(3, device=device).unsqueeze(0)
-        t = torch.zeros(3, device=device).unsqueeze(0)
-        rend_depth = self.neural_renderer(pred_verts,
-                                        face_tensor[None].expand(pred_verts.shape[0], -1, -1).int(),
-                                        # textures=texture_atlas_rgb,
-                                        mode='depth',
-                                        K=K, R=R, t=t)
-
-        rend_depth_at_proj = torch.nn.functional.grid_sample(rend_depth[:,None,:,:], map_verts_proj[:,None,:,:]) # B,1,1,N
-        rend_depth_at_proj = rend_depth_at_proj.squeeze(1).squeeze(1) # B,N
-
-        img_rgba = torch.cat([batch['img'], batch['mask'][:,None,:,:]], dim=1) # B,4,H,W
-        img_rgba_at_proj = torch.nn.functional.grid_sample(img_rgba, map_verts_proj[:,None,:,:]) # B,4,1,N
-        img_rgba_at_proj = img_rgba_at_proj.squeeze(2) # B,4,N
-
-        visibility_mask = map_verts_depth <= (rend_depth_at_proj + 1e-4) # B,N
-        img_rgba_at_proj[:,3,:][~visibility_mask] = 0
-
-        # Paste image back onto square uv_image
-        uv_image = torch.zeros((batch['img'].shape[0], 4, 256, 256), dtype=torch.float, device=device)
-        uv_image[:, :, valid_mask] = img_rgba_at_proj
-
-        out = {
-            'uv_image':  uv_image,
-            'uv_vector' : self.hmar_old.process_uv_image(uv_image),
-            'pose_smpl': model_out['pred_smpl_params'],
-            'pred_cam':  model_out['pred_cam'],
-        }
-        return out
-
-class HMR2_4dhuman(PHALP):
-    def __init__(self, cfg):
-        super().__init__(cfg)
-
-    def setup_hmr(self):
-        self.HMAR = HMR2023TextureSampler(self.cfg)
-
-    def get_detections(self, image, frame_name, t_, additional_data=None, measurments=None):
-        (
-            pred_bbox, pred_bbox, pred_masks, pred_scores, pred_classes, 
-            ground_truth_track_id, ground_truth_annotations
-        ) =  super().get_detections(image, frame_name, t_, additional_data, measurments)
-
-        # Pad bounding boxes 
-        pred_bbox_padded = expand_bbox_to_aspect_ratio(pred_bbox, self.cfg.expand_bbox_shape)
-
-        return (
-            pred_bbox, pred_bbox_padded, pred_masks, pred_scores, pred_classes,
-            ground_truth_track_id, ground_truth_annotations
-        )
+    # Open video
+    video_path = "path/to/your/test/video.mp4"
+    cap = cv2.VideoCapture(video_path)
     
-
-@dataclass
-class Human4DConfig(FullConfig):
-    # override defaults if needed
-    expand_bbox_shape: Optional[Tuple[int]] = (192,256)
-    pass
-
-cs = ConfigStore.instance()
-cs.store(name="config", node=Human4DConfig)
-
-@hydra.main(version_base="1.2", config_name="config")
-def main(cfg: DictConfig) -> Optional[float]:
-    """Main function for running the PHALP tracker."""
-
-    phalp_tracker = HMR2_4dhuman(cfg)
-
-    phalp_tracker.track()
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if not ret:
+            break
+            
+        # Process frame
+        keypoints_2d, vertices = model.process_frame(frame)
+        
+        # Visualize results
+        display_frame = frame.copy()
+        
+        # Draw skeleton
+        for i, kp in enumerate(keypoints_2d[0]):
+            x, y = int(kp[0]), int(kp[1])
+            cv2.circle(display_frame, (x, y), 3, (0, 255, 0), -1)
+            
+        # Draw connections (simplified skeleton)
+        skeleton = [
+            # Torso
+            (2, 3), (3, 4),
+            # Left arm
+            (5, 6), (6, 7),
+            # Right arm
+            (8, 9), (9, 10),
+            # Left leg
+            (11, 12), (12, 13),
+            # Right leg
+            (14, 15), (15, 16)
+        ]
+        
+        for connection in skeleton:
+            pt1 = keypoints_2d[0][connection[0]]
+            pt2 = keypoints_2d[0][connection[1]]
+            cv2.line(display_frame,
+                    (int(pt1[0]), int(pt1[1])),
+                    (int(pt2[0]), int(pt2[1])),
+                    (0, 255, 0), 2)
+        
+        cv2.imshow('4D-Humans Output', display_frame)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+            
+    cap.release()
+    cv2.destroyAllWindows()
 
 if __name__ == "__main__":
-    main()
+    test_4dhumans()
