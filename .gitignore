@@ -9,3 +9,6 @@
 /RuleExtraction/mmcv
 /RuleExtraction/openpose
 /RuleExtraction/ViTPose
+/RuleExtraction/weights
+RuleExtraction/vitpose+_large.pth
+vitpose+_large.pth
