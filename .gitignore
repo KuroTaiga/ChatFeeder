@@ -6,3 +6,7 @@
 /RuleExtraction/openpose-master
 /RuleExtraction/ViTPose-main
 /4D-Humans
+*.pth
+RuleExtraction/openpose/
+RuleExtraction/ViTPose/
+RuleExtraction/mmcv/
